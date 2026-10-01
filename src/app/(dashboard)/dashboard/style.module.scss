@@ -1,56 +1,5 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-}
-
-.headerRow {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-
-  .title {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    letter-spacing: -0.02em;
-  }
-
-  .subtitle {
-    font-size: 0.95rem;
-    color: var(--text-secondary);
-  }
-}
-
-.statsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 16px;
-}
-
-.statCard {
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  transition: border-color var(--transition-fast);
-
-  &:hover {
-    border-color: var(--border-medium);
-  }
-
-  .statLabel {
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--text-secondary);
-  }
-
-  .statValue {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--text-primary);
-  }
+  gap: 1rem;
 }

@@ -1,6 +1,5 @@
 :root,
 [data-theme="dark"] {
-  /* Dark Mode Palette (Minimalist Dark - matching design reference) */
   --bg-app: #0b0f17;
   --bg-sidebar: #0b0f17;
   --bg-header: rgba(11, 15, 23, 0.85);
@@ -86,7 +85,7 @@
   --header-height: 68px;
 
   --radius-xs: 4px;
-  --radius-sm: 8px;
+  --radius-sm: 12px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-full: 9999px;
