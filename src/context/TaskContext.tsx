@@ -22,6 +22,7 @@ interface TaskContextType {
     updateTask: (taskId: string, updates: Partial<Task>) => Promise<Task>;
     deleteTask: (taskId: string) => Promise<void>;
     updateTaskStatus: (taskId: string, newStatus: TaskStatus) => Promise<void>;
+    createProject: (input: { name: string; description: string; memberIds?: string[] }) => Promise<Project>;
     getTasksByProject: (projectId: string) => Task[];
     getProjectById: (projectId: string) => Project | undefined;
     getUserById: (userId: string) => User | undefined;
@@ -39,7 +40,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
         if (typeof window !== 'undefined') {
             const saved = localStorage.getItem(STORAGE_KEYS.TASKS);
             if (saved) {
-                try { return JSON.parse(saved); } catch (e) { /* ignore */ }
+                try { return JSON.parse(saved); } catch { /* ignore */ }
             }
         }
         return INITIAL_TASKS;
@@ -49,7 +50,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
         if (typeof window !== 'undefined') {
             const saved = localStorage.getItem(STORAGE_KEYS.PROJECTS);
             if (saved) {
-                try { return JSON.parse(saved); } catch (e) { /* ignore */ }
+                try { return JSON.parse(saved); } catch { /* ignore */ }
             }
         }
         return INITIAL_PROJECTS;
@@ -118,6 +119,21 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
         setTasks((prev) => prev.filter((t) => t.id !== taskId));
     };
 
+    const createProject = async (input: { name: string; description: string; memberIds?: string[] }): Promise<Project> => {
+        checkSimulatedError();
+
+        const newProject: Project = {
+            id: `proj-${Date.now()}`,
+            name: input.name,
+            description: input.description,
+            memberIds: input.memberIds || ['user-1'],
+            createdAt: new Date().toISOString(),
+        };
+
+        setProjects((prev) => [newProject, ...prev]);
+        return newProject;
+    };
+
     const getTasksByProject = (projectId: string) => {
         return tasks.filter((t) => t.projectId === projectId);
     };
@@ -140,6 +156,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
                 updateTask,
                 deleteTask,
                 updateTaskStatus,
+                createProject,
                 getTasksByProject,
                 getProjectById,
                 getUserById,

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { TaskProvider } from "@/context/TaskContext";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -27,7 +28,9 @@ export default function RootLayout({
     <html lang="en" data-theme="dark" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body>
         <ThemeProvider>
-          {children}
+          <TaskProvider>
+            {children}
+          </TaskProvider>
         </ThemeProvider>
       </body>
     </html>
