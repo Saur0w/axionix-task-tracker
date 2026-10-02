@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { 
   Search, 
   Bell, 
@@ -8,7 +9,7 @@ import {
   Moon, 
   Plus, 
   Menu, 
-  AlertTriangle 
+  AlertTriangle
 } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 import styles from './style.module.scss';
@@ -24,21 +25,45 @@ export default function Header({
   onCreateClick,
   onSearchChange 
 }: HeaderProps) {
+  const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
+  const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchVal, setSearchVal] = useState('');
-  const [simulateError, setSimulateError] = useState(false);
+  
+  const [simulateError, setSimulateError] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('axionix_simulate_error') === 'true';
+    }
+    return false;
+  });
 
-  // Sync simulated error state with localStorage
+  // Sync simulated error state across tabs / components (Assignment Req #3)
   useEffect(() => {
-    const saved = localStorage.getItem('axionix_simulate_error') === 'true';
-    setSimulateError(saved);
-
     const handleStorageChange = () => {
       setSimulateError(localStorage.getItem('axionix_simulate_error') === 'true');
     };
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener('axionix_error_toggle', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('axionix_error_toggle', handleStorageChange);
+    };
   }, []);
+
+  // Keyboard shortcut listener for Cmd+K / Ctrl+K
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsSearchActive(true);
+      }
+      if (e.key === 'Escape' && isSearchActive) {
+        setIsSearchActive(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isSearchActive]);
 
   const toggleSimulateError = () => {
     const nextState = !simulateError;
@@ -55,9 +80,16 @@ export default function Header({
     }
   };
 
+  const getPageTitle = () => {
+    if (pathname === '/dashboard') return 'Overview';
+    if (pathname === '/projects') return 'Projects';
+    if (pathname.startsWith('/projects/')) return 'Task Board';
+    return 'Dashboard';
+  };
+
   return (
     <header className={styles.header}>
-      {/* Left: Mobile Toggle & Search Bar */}
+      {/* Left: Mobile Navigation Trigger & Dynamic Page Breadcrumb */}
       <div className={styles.leftSection}>
         <button
           type="button"
@@ -65,67 +97,92 @@ export default function Header({
           className={styles.mobileToggle}
           aria-label="Open navigation menu"
         >
-          <Menu size={20} />
+          <Menu size={16} strokeWidth={1.5} />
         </button>
 
-        <div className={styles.searchWrapper}>
-          <Search size={16} className={styles.searchIcon} />
-          <input
-            type="text"
-            value={searchVal}
-            onChange={handleSearch}
-            placeholder="Search projects, tasks, or people..."
-            className={styles.searchInput}
-            aria-label="Search"
-          />
+        <div className={styles.breadcrumbs}>
+          <span className={styles.workspaceLabel}>Axionix</span>
+          <span className={styles.separator}>/</span>
+          <span className={styles.pageTitle}>{getPageTitle()}</span>
         </div>
       </div>
 
-      {/* Right: Notifications, Theme Switcher, Simulated Error, + Create */}
+      {/* Right: Search Pill, Mock Error Toggle, Theme, Notifications & New Issue */}
       <div className={styles.rightSection}>
-        {/* Requirement 3: Simulated API Error Toggle */}
+        {isSearchActive ? (
+          <div className={styles.searchActiveWrapper}>
+            <Search size={13} strokeWidth={1.5} className={styles.searchIcon} />
+            <input
+              type="text"
+              autoFocus
+              value={searchVal}
+              onChange={handleSearch}
+              onBlur={() => !searchVal && setIsSearchActive(false)}
+              placeholder="Search or jump to..."
+              className={styles.searchInput}
+            />
+            <kbd className={styles.escBadge} onClick={() => setIsSearchActive(false)}>ESC</kbd>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setIsSearchActive(true)}
+            className={styles.searchPillBtn}
+            title="Search or jump to... (⌘K)"
+          >
+            <Search size={13} strokeWidth={1.5} />
+            <span>Search...</span>
+            <kbd className={styles.shortcutKey}>⌘K</kbd>
+          </button>
+        )}
+
+        <div className={styles.divider} />
+
+        {/* Assignment Req #3: Simulated Network Error Toggle */}
         <button
           type="button"
           onClick={toggleSimulateError}
           className={`${styles.errorToggle} ${simulateError ? styles.errorActive : ''}`}
-          title="Toggle simulated network failure (Assignment Req #3)"
+          title="Toggle simulated error (Req #3)"
           aria-pressed={simulateError}
         >
-          <AlertTriangle size={13} />
-          <span>{simulateError ? 'Simulate Error: ON' : 'Mock Error'}</span>
+          <AlertTriangle size={12} strokeWidth={1.5} />
+          <span>{simulateError ? 'Error: ON' : 'Mock Error'}</span>
         </button>
 
-        {/* Notifications with Unread Dot */}
+        {/* Notifications */}
         <button
           type="button"
-          className={styles.iconButton}
-          aria-label="View notifications"
+          className={styles.iconBtn}
+          aria-label="Notifications"
           title="Notifications"
         >
-          <Bell size={18} />
-          <span className={styles.badgeDot} />
+          <Bell size={14} strokeWidth={1.5} />
+          <span className={styles.bellDot} />
         </button>
 
         {/* Dark / Light Mode Switch */}
         <button
           type="button"
           onClick={toggleTheme}
-          className={styles.iconButton}
+          className={styles.iconBtn}
           aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
           title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
         >
-          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          {theme === 'dark' ? <Sun size={14} strokeWidth={1.5} /> : <Moon size={14} strokeWidth={1.5} />}
         </button>
 
-        {/* Minimal High-Contrast + Create Button */}
+        {/* New Issue Button */}
         <button
           type="button"
-          onClick={onCreateClick || (() => alert('Create modal will open here'))}
-          className={styles.createButton}
-          aria-label="Create new item"
+          onClick={onCreateClick || (() => window.dispatchEvent(new CustomEvent('axionix_create_issue')))}
+          className={styles.newIssueBtn}
+          title="New Issue (C)"
+          aria-label="New Issue"
         >
-          <Plus size={16} />
-          <span>Create</span>
+          <Plus size={13} strokeWidth={2} />
+          <span>New Issue</span>
+          <kbd className={styles.btnShortcut}>C</kbd>
         </button>
       </div>
     </header>

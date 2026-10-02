@@ -1,16 +1,26 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
-  LayoutGrid, 
-  FolderKanban, 
-  CheckSquare, 
-  Users, 
-  Settings, 
-  LogOut 
+  ChevronDown,
+  Search,
+  Plus,
+  Activity,
+  Inbox,
+  CheckCircle2,
+  GitPullRequest,
+  Compass,
+  FolderKanban,
+  Bot,
+  BarChart3,
+  Palette,
+  Settings,
+  LogOut,
+  HelpCircle
 } from 'lucide-react';
+import AxionixLogo from '@/components/ui/Logo';
 import styles from './style.module.scss';
 
 interface SidebarProps {
@@ -19,105 +29,210 @@ interface SidebarProps {
     role: string;
   };
   onLogout?: () => void;
+  onOpenSearch?: () => void;
+  onCreateIssue?: () => void;
 }
 
 export default function Sidebar({ 
-  user = { name: 'Saurabh Thapliyal', role: 'Frontend Developer Intern' }, 
-  onLogout 
+  user = { name: 'Saurabh Thapliyal', role: 'Frontend Developer' }, 
+  onLogout,
+  onOpenSearch,
+  onCreateIssue
 }: SidebarProps) {
   const pathname = usePathname();
-
-  const navLinks = [
-    {
-      name: 'Overview',
-      href: '/dashboard',
-      icon: LayoutGrid,
-      isActive: pathname === '/dashboard',
-    },
-    {
-      name: 'Projects',
-      href: '/projects',
-      icon: FolderKanban,
-      isActive: pathname.startsWith('/projects') && pathname === '/projects',
-    },
-    {
-      name: 'Tasks',
-      href: '/projects/proj-1',
-      icon: CheckSquare,
-      isActive: pathname.startsWith('/projects/') && pathname !== '/projects',
-    },
-    {
-      name: 'Team',
-      href: '/dashboard',
-      icon: Users,
-      isActive: false,
-    },
-    {
-      name: 'Settings',
-      href: '/dashboard',
-      icon: Settings,
-      isActive: false,
-    },
-  ];
+  const [workspaceOpen, setWorkspaceOpen] = useState(true);
+  const [favoritesOpen, setFavoritesOpen] = useState(true);
 
   return (
     <aside className={styles.sidebar} aria-label="Sidebar Navigation">
-      {/* Minimal Brand Logo */}
-      <div className={styles.brand}>
-        <div className={styles.brandLogo}>
-          <span className={styles.logoBarPrimary} />
-          <span className={styles.logoBarSecondary} />
+      {/* 1. Minimal Workspace Header */}
+      <div className={styles.workspaceHeader}>
+        <button 
+          type="button" 
+          className={styles.workspaceSelector}
+          title="Switch workspace"
+        >
+          <AxionixLogo size={15} className={styles.brandIcon} />
+          <span className={styles.workspaceName}>Axionix</span>
+          <ChevronDown size={11} className={styles.chevron} strokeWidth={1.75} />
+        </button>
+
+        <div className={styles.headerActions}>
+          <button 
+            type="button" 
+            onClick={onOpenSearch}
+            className={styles.actionBtn}
+            title="Search (⌘K)"
+            aria-label="Search"
+          >
+            <Search size={13} strokeWidth={1.5} />
+          </button>
+          <button 
+            type="button" 
+            onClick={onCreateIssue || (() => window.dispatchEvent(new CustomEvent('axionix_create_issue')))}
+            className={styles.actionBtn}
+            title="New Issue (C)"
+            aria-label="New Issue"
+          >
+            <Plus size={13} strokeWidth={1.5} />
+          </button>
         </div>
-        <span className={styles.brandName}>Axionix</span>
       </div>
 
-      {/* Nav Menu */}
-      <nav className={styles.navSection}>
-        {navLinks.map((link) => {
-          const Icon = link.icon;
-          return (
-            <Link
-              key={link.name}
-              href={link.href}
-              className={`${styles.navItem} ${link.isActive ? styles.active : ''}`}
-              aria-current={link.isActive ? 'page' : undefined}
-            >
-              <Icon size={18} />
-              <span>{link.name}</span>
-            </Link>
-          );
-        })}
-      </nav>
+      {/* 2. Scrollable Minimal Navigation */}
+      <div className={styles.navScrollArea}>
+        {/* Core Nav */}
+        <nav className={styles.navGroup} aria-label="Main Navigation">
+          <Link
+            href="/dashboard"
+            className={`${styles.navItem} ${pathname === '/dashboard' ? styles.active : ''}`}
+          >
+            <Activity size={14} strokeWidth={1.5} className={styles.itemIcon} />
+            <span className={styles.itemLabel}>Pulse</span>
+          </Link>
 
-      {/* Footer Area: Quote & User Profile */}
-      <div className={styles.sidebarFooter}>
-        <div className={styles.quote}>
-          <p>Better systems</p>
-          <p>build better teams.</p>
+          <Link
+            href="/dashboard"
+            className={`${styles.navItem} ${styles.hasBadge}`}
+          >
+            <Inbox size={14} strokeWidth={1.5} className={styles.itemIcon} />
+            <span className={styles.itemLabel}>Inbox</span>
+            <span className={styles.countBadge}>3</span>
+          </Link>
+
+          <Link
+            href="/projects/proj-1"
+            className={`${styles.navItem} ${pathname.startsWith('/projects/') ? styles.active : ''}`}
+          >
+            <CheckCircle2 size={14} strokeWidth={1.5} className={styles.itemIcon} />
+            <span className={styles.itemLabel}>My issues</span>
+          </Link>
+
+          <Link
+            href="/dashboard"
+            className={styles.navItem}
+          >
+            <GitPullRequest size={14} strokeWidth={1.5} className={styles.itemIcon} />
+            <span className={styles.itemLabel}>Reviews</span>
+          </Link>
+        </nav>
+
+        {/* Workspace Section */}
+        <div className={styles.navSection}>
+          <button 
+            type="button" 
+            onClick={() => setWorkspaceOpen(!workspaceOpen)}
+            className={styles.sectionHeader}
+            aria-expanded={workspaceOpen}
+          >
+            <span>Workspace</span>
+            <ChevronDown 
+              size={11} 
+              strokeWidth={1.75}
+              className={`${styles.sectionChevron} ${workspaceOpen ? styles.rotated : ''}`} 
+            />
+          </button>
+
+          {workspaceOpen && (
+            <div className={styles.sectionItems}>
+              <Link href="/dashboard" className={styles.navItem}>
+                <Compass size={14} strokeWidth={1.5} className={styles.itemIcon} />
+                <span className={styles.itemLabel}>Initiatives</span>
+              </Link>
+
+              <Link 
+                href="/projects" 
+                className={`${styles.navItem} ${pathname === '/projects' ? styles.active : ''}`}
+              >
+                <FolderKanban size={14} strokeWidth={1.5} className={styles.itemIcon} />
+                <span className={styles.itemLabel}>Projects</span>
+                <span className={styles.countBadge}>5</span>
+              </Link>
+            </div>
+          )}
         </div>
 
-        <div className={styles.userCard}>
-          <div className={styles.userLeft}>
-            <div className={styles.avatarWrapper}>
-              <div className={styles.avatar}>
-                ST
-              </div>
-              <span className={styles.onlineDot} />
+        {/* Favorites Section */}
+        <div className={styles.navSection}>
+          <button 
+            type="button" 
+            onClick={() => setFavoritesOpen(!favoritesOpen)}
+            className={styles.sectionHeader}
+            aria-expanded={favoritesOpen}
+          >
+            <span>Favorites</span>
+            <ChevronDown 
+              size={11} 
+              strokeWidth={1.75}
+              className={`${styles.sectionChevron} ${favoritesOpen ? styles.rotated : ''}`} 
+            />
+          </button>
+
+          {favoritesOpen && (
+            <div className={styles.sectionItems}>
+              <Link 
+                href="/dashboard" 
+                className={`${styles.navItem} ${styles.favoriteActive}`}
+              >
+                <span className={styles.statusDotAmber} />
+                <span className={styles.itemLabel}>Faster app launch</span>
+              </Link>
+
+              <Link href="/dashboard" className={styles.navItem}>
+                <Bot size={14} strokeWidth={1.5} className={styles.itemIcon} />
+                <span className={styles.itemLabel}>Agent tasks</span>
+              </Link>
+
+              <Link href="/dashboard" className={styles.navItem}>
+                <BarChart3 size={14} strokeWidth={1.5} className={styles.itemIcon} />
+                <span className={styles.itemLabel}>Agent Insights</span>
+              </Link>
+
+              <Link href="/dashboard" className={styles.navItem}>
+                <Palette size={14} strokeWidth={1.5} className={styles.itemIcon} />
+                <span className={styles.itemLabel}>UI Refresh</span>
+              </Link>
             </div>
-            <div className={styles.userDetails}>
-              <span className={styles.userName}>{user.name}</span>
-              <span className={styles.userRole}>{user.role}</span>
-            </div>
+          )}
+        </div>
+      </div>
+
+      {/* 3. Ultra-Clean Footer */}
+      <div className={styles.sidebarFooter}>
+        <div className={styles.userProfile}>
+          <div className={styles.avatar}>ST</div>
+          <div className={styles.userMeta}>
+            <span className={styles.userName}>{user.name}</span>
           </div>
+        </div>
+
+        <div className={styles.footerActions}>
+          <button 
+            type="button" 
+            className={styles.footerIconBtn} 
+            title="Help"
+            aria-label="Help"
+          >
+            <HelpCircle size={13} strokeWidth={1.5} />
+          </button>
+          
+          <button 
+            type="button" 
+            className={styles.footerIconBtn} 
+            title="Settings"
+            aria-label="Settings"
+          >
+            <Settings size={13} strokeWidth={1.5} />
+          </button>
 
           <button
             type="button"
             onClick={onLogout}
-            className={styles.logoutBtn}
+            className={styles.footerIconBtn}
             title="Sign out"
             aria-label="Sign out"
           >
-            <LogOut size={16} />
+            <LogOut size={13} strokeWidth={1.5} />
           </button>
         </div>
       </div>

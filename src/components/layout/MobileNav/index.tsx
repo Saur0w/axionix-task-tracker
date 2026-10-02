@@ -4,17 +4,23 @@ import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
-  LayoutGrid, 
-  FolderKanban, 
-  CheckSquare, 
-  Users, 
-  Settings, 
+  Activity,
+  Inbox,
+  CheckCircle2,
+  GitPullRequest,
+  Compass,
+  FolderKanban,
+  Bot,
+  BarChart3,
+  Palette,
+  Circle,
   X, 
   LogOut,
   Sun,
   Moon
 } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
+import AxionixLogo from '@/components/ui/Logo';
 import styles from './style.module.scss';
 
 interface MobileNavProps {
@@ -30,7 +36,7 @@ interface MobileNavProps {
 export default function MobileNav({
   isOpen,
   onClose,
-  user = { name: 'Saurabh Thapliyal', role: 'Frontend Developer Intern' },
+  user = { name: 'Saurabh Thapliyal', role: 'Frontend Developer' },
   onLogout,
 }: MobileNavProps) {
   const pathname = usePathname();
@@ -57,39 +63,6 @@ export default function MobileNav({
     };
   }, [isOpen]);
 
-  const navLinks = [
-    {
-      name: 'Overview',
-      href: '/dashboard',
-      icon: LayoutGrid,
-      isActive: pathname === '/dashboard',
-    },
-    {
-      name: 'Projects',
-      href: '/projects',
-      icon: FolderKanban,
-      isActive: pathname.startsWith('/projects') && pathname === '/projects',
-    },
-    {
-      name: 'Tasks',
-      href: '/projects/proj-1',
-      icon: CheckSquare,
-      isActive: pathname.startsWith('/projects/') && pathname !== '/projects',
-    },
-    {
-      name: 'Team',
-      href: '/dashboard',
-      icon: Users,
-      isActive: false,
-    },
-    {
-      name: 'Settings',
-      href: '/dashboard',
-      icon: Settings,
-      isActive: false,
-    },
-  ];
-
   return (
     <>
       <div
@@ -106,49 +79,121 @@ export default function MobileNav({
       >
         <div className={styles.drawerHeader}>
           <div className={styles.brand}>
-            <div className={styles.brandLogo}>
-              <span className={styles.logoBarPrimary} />
-              <span className={styles.logoBarSecondary} />
-            </div>
+            <AxionixLogo size={16} />
             <span className={styles.brandName}>Axionix</span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className={styles.headerRight}>
             <button
               type="button"
               onClick={toggleTheme}
-              className={styles.closeButton}
+              className={styles.iconBtn}
               aria-label="Toggle theme"
             >
-              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+              {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className={styles.closeButton}
+              className={styles.iconBtn}
               aria-label="Close menu"
             >
-              <X size={20} />
+              <X size={18} />
             </button>
           </div>
         </div>
 
-        <nav className={styles.navSection}>
-          {navLinks.map((link) => {
-            const Icon = link.icon;
-            return (
-              <Link
-                key={link.name}
-                href={link.href}
-                onClick={onClose}
-                className={`${styles.navItem} ${link.isActive ? styles.active : ''}`}
-              >
-                <Icon size={18} />
-                <span>{link.name}</span>
-              </Link>
-            );
-          })}
-        </nav>
+        <div className={styles.scrollArea}>
+          {/* Main Navigation */}
+          <nav className={styles.navGroup}>
+            <Link
+              href="/dashboard"
+              onClick={onClose}
+              className={`${styles.navItem} ${pathname === '/dashboard' ? styles.active : ''}`}
+            >
+              <Activity size={15} />
+              <span>Pulse</span>
+            </Link>
+
+            <Link
+              href="/dashboard"
+              onClick={onClose}
+              className={styles.navItem}
+            >
+              <Inbox size={15} />
+              <span>Inbox</span>
+              <span className={styles.badge}>3</span>
+            </Link>
+
+            <Link
+              href="/projects/proj-1"
+              onClick={onClose}
+              className={`${styles.navItem} ${pathname.startsWith('/projects/') ? styles.active : ''}`}
+            >
+              <CheckCircle2 size={15} />
+              <span>My issues</span>
+            </Link>
+
+            <Link
+              href="/dashboard"
+              onClick={onClose}
+              className={styles.navItem}
+            >
+              <GitPullRequest size={15} />
+              <span>Reviews</span>
+            </Link>
+          </nav>
+
+          <div className={styles.sectionDivider} />
+
+          {/* Workspace */}
+          <div className={styles.sectionHeader}>Workspace</div>
+          <nav className={styles.navGroup}>
+            <Link href="/dashboard" onClick={onClose} className={styles.navItem}>
+              <Compass size={15} />
+              <span>Initiatives</span>
+            </Link>
+            <Link
+              href="/projects"
+              onClick={onClose}
+              className={`${styles.navItem} ${pathname === '/projects' ? styles.active : ''}`}
+            >
+              <FolderKanban size={15} />
+              <span>Projects</span>
+              <span className={styles.badge}>5</span>
+            </Link>
+          </nav>
+
+          <div className={styles.sectionDivider} />
+
+          {/* Favorites */}
+          <div className={styles.sectionHeader}>Favorites</div>
+          <nav className={styles.navGroup}>
+            <Link
+              href="/dashboard"
+              onClick={onClose}
+              className={styles.navItem}
+            >
+              <Circle size={8} fill="#f59e0b" strokeWidth={0} />
+              <span>Faster app launch</span>
+            </Link>
+
+            <Link href="/dashboard" onClick={onClose} className={styles.navItem}>
+              <Bot size={15} style={{ color: '#a855f7' }} />
+              <span>Agent tasks</span>
+            </Link>
+
+            <Link href="/dashboard" onClick={onClose} className={styles.navItem}>
+              <BarChart3 size={15} style={{ color: '#38bdf8' }} />
+              <span>Agent Insights</span>
+            </Link>
+
+            <Link href="/dashboard" onClick={onClose} className={styles.navItem}>
+              <Palette size={15} style={{ color: '#fb7185' }} />
+              <span>UI Refresh</span>
+            </Link>
+          </nav>
+        </div>
 
         <div className={styles.userFooter}>
           <div className={styles.userInfo}>

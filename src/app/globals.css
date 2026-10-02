@@ -1,97 +1,97 @@
 :root,
 [data-theme="dark"] {
-  --bg-app: #0b0f17;
-  --bg-sidebar: #0b0f17;
-  --bg-header: rgba(11, 15, 23, 0.85);
-  --bg-surface: #111722;
-  --bg-surface-elevated: #161e2e;
-  --bg-surface-hover: #1c263a;
-  --bg-input: #101623;
+  --bg-app: #08090a;
+  --bg-sidebar: #0d0e10;
+  --bg-header: rgba(13, 14, 16, 0.85);
+  --bg-surface: #121316;
+  --bg-surface-elevated: #18191d;
+  --bg-surface-hover: #212227;
+  --bg-input: #121316;
   --bg-active-nav: rgba(255, 255, 255, 0.08);
 
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-medium: rgba(255, 255, 255, 0.14);
-  --border-focus: #60a5fa;
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --border-medium: rgba(255, 255, 255, 0.12);
+  --border-focus: #5e6ad2;
 
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  --text-primary: #f7f8f8;
+  --text-secondary: #8a8f98;
+  --text-muted: #5c606a;
 
-  --btn-create-bg: #ffffff;
-  --btn-create-text: #0b0f17;
-  --btn-create-hover: #e2e8f0;
+  --btn-create-bg: #f7f8f8;
+  --btn-create-text: #08090a;
+  --btn-create-hover: #e3e4e6;
 
-  --primary: #3b82f6;
-  --primary-hover: #2563eb;
-  --primary-glow: rgba(59, 130, 246, 0.25);
+  --primary: #5e6ad2;
+  --primary-hover: #6e7be2;
+  --primary-glow: rgba(94, 106, 210, 0.25);
 
   --success: #10b981;
-  --success-bg: rgba(16, 185, 129, 0.15);
+  --success-bg: rgba(16, 185, 129, 0.12);
   --warning: #f59e0b;
-  --warning-bg: rgba(245, 158, 11, 0.15);
-  --danger: #ef4444;
-  --danger-bg: rgba(239, 68, 68, 0.15);
+  --warning-bg: rgba(245, 158, 11, 0.12);
+  --danger: #f43f5e;
+  --danger-bg: rgba(244, 63, 94, 0.12);
   --info: #38bdf8;
-  --info-bg: rgba(56, 189, 248, 0.15);
+  --info-bg: rgba(56, 189, 248, 0.12);
 
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.45);
-  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.6);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.6);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.7);
 }
 
 [data-theme="light"] {
-  /* Light Mode Palette */
-  --bg-app: #f8fafc;
-  --bg-sidebar: #ffffff;
-  --bg-header: rgba(255, 255, 255, 0.85);
+  /* Linear Clean Light Mode */
+  --bg-app: #f9f9fa;
+  --bg-sidebar: #f4f5f6;
+  --bg-header: rgba(244, 245, 246, 0.85);
   --bg-surface: #ffffff;
-  --bg-surface-elevated: #f1f5f9;
-  --bg-surface-hover: #e2e8f0;
-  --bg-input: #f8fafc;
-  --bg-active-nav: rgba(15, 23, 42, 0.06);
+  --bg-surface-elevated: #ededf0;
+  --bg-surface-hover: #e4e5e8;
+  --bg-input: #ffffff;
+  --bg-active-nav: rgba(0, 0, 0, 0.06);
 
-  --border-subtle: rgba(15, 23, 42, 0.08);
-  --border-medium: rgba(15, 23, 42, 0.15);
-  --border-focus: #2563eb;
+  --border-subtle: rgba(0, 0, 0, 0.08);
+  --border-medium: rgba(0, 0, 0, 0.14);
+  --border-focus: #5e6ad2;
 
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
+  --text-primary: #121316;
+  --text-secondary: #5c606a;
+  --text-muted: #8a8f98;
 
-  --btn-create-bg: #0f172a;
+  --btn-create-bg: #121316;
   --btn-create-text: #ffffff;
-  --btn-create-hover: #1e293b;
+  --btn-create-hover: #26272b;
 
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
-  --primary-glow: rgba(37, 99, 235, 0.2);
+  --primary: #5e6ad2;
+  --primary-hover: #4d59be;
+  --primary-glow: rgba(94, 106, 210, 0.18);
 
   --success: #059669;
-  --success-bg: rgba(5, 150, 105, 0.12);
+  --success-bg: rgba(5, 150, 105, 0.1);
   --warning: #d97706;
-  --warning-bg: rgba(217, 119, 6, 0.12);
-  --danger: #dc2626;
-  --danger-bg: rgba(220, 38, 38, 0.12);
+  --warning-bg: rgba(217, 119, 6, 0.1);
+  --danger: #e11d48;
+  --danger-bg: rgba(225, 29, 72, 0.1);
   --info: #0284c7;
-  --info-bg: rgba(2, 132, 199, 0.12);
+  --info-bg: rgba(2, 132, 199, 0.1);
 
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.12);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 24px rgba(0, 0, 0, 0.1);
 }
 
 :root {
-  --sidebar-width: 250px;
-  --header-height: 68px;
+  --sidebar-width: 240px;
+  --header-height: 56px;
 
   --radius-xs: 4px;
-  --radius-sm: 12px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
   --radius-full: 9999px;
 
-  --transition-fast: 0.15s ease;
-  --transition-normal: 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: 0.12s ease;
+  --transition-normal: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 * {
