@@ -98,6 +98,39 @@
   }
 }
 
+.authModeTabs {
+  display: flex;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  gap: 2px;
+
+  .modeTab {
+    flex: 1;
+    height: 30px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    font-weight: 500;
+    border-radius: var(--radius-xs);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+
+    &:hover {
+      color: var(--text-primary);
+    }
+
+    &.activeModeTab {
+      background: var(--bg-surface-elevated, var(--bg-surface));
+      color: var(--text-primary);
+      font-weight: 600;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    }
+  }
+}
+
 .mockErrorWarning {
   display: flex;
   align-items: flex-start;
@@ -281,7 +314,8 @@
         pointer-events: none;
       }
 
-      .input {
+      .input,
+      .select {
         width: 100%;
         height: 38px;
         padding: 0 38px 0 36px;

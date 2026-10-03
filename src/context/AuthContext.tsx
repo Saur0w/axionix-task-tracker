@@ -5,8 +5,12 @@ import { useRouter } from 'next/navigation';
 import { User } from '@/types';
 import { INITIAL_USERS } from '@/services/mockData';
 import { createPersistentStore } from '@/utils/persistentStore';
-import { simulateErrorStore, ApiError } from '@/context/TaskContext';
+import { simulateErrorStore, usersStore, ApiError } from '@/context/TaskContext';
 import { useToast } from '@/context/ToastContext';
+
+/* -------------------------------------------------------------------------- */
+/*  Persistent Auth Store (Hydration-Safe via useSyncExternalStore)           */
+/* -------------------------------------------------------------------------- */
 
 const isUser = (value: unknown): value is User | null => {
   if (value === null) return true;
@@ -15,19 +19,28 @@ const isUser = (value: unknown): value is User | null => {
   return typeof u.id === 'string' && typeof u.name === 'string' && typeof u.email === 'string';
 };
 
+/** Default to the first team user (Saurabh Thapliyal) for an immediate seamless experience. */
 export const authUserStore = createPersistentStore<User | null>(
   'axionix_auth_user',
   INITIAL_USERS[0],
   isUser
 );
 
-const AUTH_LATENCY_MS = 400;
+const AUTH_LATENCY_MS = 350;
+
+export interface RegisterInput {
+  name: string;
+  email: string;
+  role?: string;
+  password?: string;
+}
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   availableUsers: User[];
   login: (email: string, password?: string) => Promise<User>;
+  register: (input: RegisterInput) => Promise<User>;
   logout: () => Promise<void>;
   switchUser: (userId: string) => Promise<User>;
 }
@@ -44,30 +57,70 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     authUserStore.getServer
   );
 
+  const availableUsers = useSyncExternalStore(
+    usersStore.subscribe,
+    usersStore.get,
+    usersStore.getServer
+  );
+
   const login = async (email: string, _password?: string): Promise<User> => {
     // Simulated network delay
     await new Promise((resolve) => setTimeout(resolve, AUTH_LATENCY_MS));
 
-    // simulated failure mode
+    // Assignment Req #3: Honor simulated failure mode
     if (simulateErrorStore.get()) {
       throw new ApiError('Authentication service unreachable (simulated error). Turn off Mock Error in the header to proceed.');
     }
 
     const trimmedEmail = email.trim().toLowerCase();
-    const matchedUser = INITIAL_USERS.find(
+    const currentUsers = usersStore.get();
+    const matchedUser = currentUsers.find(
       (u) => u.email.toLowerCase() === trimmedEmail || u.name.toLowerCase().includes(trimmedEmail)
     );
 
     if (!matchedUser) {
-      throw new ApiError('No account found with this email. Try "sthap@axionix.dev" or choose a demo profile.');
+      throw new ApiError('No account found with this email. Try "sthap@axionix.dev" or switch to "Create Account".');
     }
 
     authUserStore.set(matchedUser);
     return matchedUser;
   };
 
+  const register = async (input: RegisterInput): Promise<User> => {
+    await new Promise((resolve) => setTimeout(resolve, AUTH_LATENCY_MS));
+
+    if (simulateErrorStore.get()) {
+      throw new ApiError('Registration failed (simulated error). Turn off Mock Error in the header to proceed.');
+    }
+
+    const trimmedEmail = input.email.trim().toLowerCase();
+    const trimmedName = input.name.trim();
+
+    if (!trimmedName) throw new ApiError('Please enter your full name.');
+    if (!trimmedEmail) throw new ApiError('Please enter a valid email address.');
+
+    const currentUsers = usersStore.get();
+    if (currentUsers.some((u) => u.email.toLowerCase() === trimmedEmail)) {
+      throw new ApiError(`An account with email "${trimmedEmail}" already exists. Please sign in instead.`);
+    }
+
+    const newUser: User = {
+      id: `user-${Date.now()}`,
+      name: trimmedName,
+      email: trimmedEmail,
+      role: input.role?.trim() || 'Software Engineer',
+    };
+
+    // Save to persistent user store
+    usersStore.set((prev) => [...prev, newUser]);
+    // Set as active session
+    authUserStore.set(newUser);
+
+    return newUser;
+  };
+
   const logout = async (): Promise<void> => {
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    await new Promise((resolve) => setTimeout(resolve, 150));
     authUserStore.set(null);
     toast({
       variant: 'info',
@@ -78,7 +131,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const switchUser = async (userId: string): Promise<User> => {
-    const target = INITIAL_USERS.find((u) => u.id === userId);
+    const currentUsers = usersStore.get();
+    const target = currentUsers.find((u) => u.id === userId);
     if (!target) {
       throw new ApiError('Selected user profile was not found.');
     }
@@ -95,12 +149,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     () => ({
       user,
       isAuthenticated: user !== null,
-      availableUsers: INITIAL_USERS,
+      availableUsers,
       login,
+      register,
       logout,
       switchUser,
     }),
-    [user]
+    [user, availableUsers]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

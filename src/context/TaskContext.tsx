@@ -13,6 +13,7 @@ const isArray = <T,>(value: unknown): value is T[] => Array.isArray(value);
 
 export const tasksStore = createPersistentStore<Task[]>('axionix_tasks', INITIAL_TASKS, isArray);
 export const projectsStore = createPersistentStore<Project[]>('axionix_projects', INITIAL_PROJECTS, isArray);
+export const usersStore = createPersistentStore<User[]>('axionix_users', INITIAL_USERS, isArray);
 
 /** Assignment Req #3: when true, every mutation fails like a real network error. */
 export const simulateErrorStore = createPersistentStore<boolean>(
@@ -170,7 +171,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
   // Server + hydration render the seed data; the persisted data arrives right after.
   const tasks = useSyncExternalStore(tasksStore.subscribe, tasksStore.get, tasksStore.getServer);
   const projects = useSyncExternalStore(projectsStore.subscribe, projectsStore.get, projectsStore.getServer);
-  const users = INITIAL_USERS;
+  const users = useSyncExternalStore(usersStore.subscribe, usersStore.get, usersStore.getServer);
 
   const value = useMemo<TaskContextType>(
     () => ({
