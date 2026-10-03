@@ -20,6 +20,8 @@ import { useToast } from '@/context/ToastContext';
 import { getInitials } from '@/utils/format';
 import styles from './style.module.scss';
 
+gsap.registerPlugin(useState);
+
 export default function ProjectsPage() {
   const { projects, tasks, users, createProject } = useTasks();
   const { toast } = useToast();
@@ -33,7 +35,6 @@ export default function ProjectsPage() {
   const heroRef = useRef<HTMLElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
 
-  // Overall workspace stats
   const overallStats = useMemo(() => {
     const totalProjects = projects.length;
     const totalTasks = tasks.length;
@@ -134,7 +135,6 @@ export default function ProjectsPage() {
         </div>
       </section>
 
-      {/* Overall Stat Cards */}
       <section className={styles.metricsOverview}>
         <div className={styles.statCard}>
           <span className={styles.statLabel}>Active Projects</span>
@@ -155,7 +155,6 @@ export default function ProjectsPage() {
         </div>
       </section>
 
-      {/* Projects Grid */}
       <div className={styles.projectsGrid} ref={gridRef}>
         {projects.map((project) => {
           const projectTasks = tasks.filter((t) => t.projectId === project.id);
@@ -172,7 +171,6 @@ export default function ProjectsPage() {
             health = { label: 'On Track', className: styles.onTrack };
           }
 
-          // Assigned member profiles
           const memberProfiles = (project.memberIds || [])
             .map((mId) => users.find((u) => u.id === mId))
             .filter((u): u is typeof users[0] => Boolean(u));
@@ -250,7 +248,6 @@ export default function ProjectsPage() {
         })}
       </div>
 
-      {/* Create Project Modal */}
       {isModalOpen && (
         <div 
           className={styles.modalOverlay}

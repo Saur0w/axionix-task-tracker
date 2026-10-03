@@ -64,7 +64,7 @@ export default function CreateTaskModal() {
         setProjectId(defaults?.projectId ?? projects[0]?.id ?? '');
         setStatus(defaults?.status ?? 'TODO');
         setPriority('MEDIUM');
-        setAssigneeId('user-1');
+        setAssigneeId(defaults?.assigneeId ?? 'user-1');
         setDueDate(toDateInputValue(nextWeek));
         setError(null);
         setSubmitting(false);

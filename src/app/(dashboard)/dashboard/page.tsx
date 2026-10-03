@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { 
   CheckCircle2, 
   Circle, 
@@ -13,12 +14,14 @@ import {
   Sparkles,
   Trash2,
   AlertCircle,
-  X
+  X,
+  UserCheck
 } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { useTasks } from '@/context/TaskContext';
 import { useSearch } from '@/context/SearchContext';
+import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { openCreateTaskModal } from '@/components/features/tasks/CreateTaskModal/events';
 import { formatTaskKey, getDueInfo, getInitials } from '@/utils/format';
@@ -29,11 +32,16 @@ gsap.registerPlugin(useGSAP);
 
 type ActiveStatusFilter = NonNullable<TaskFilters['status']>;
 
-export default function DashboardPage() {
+function DashboardContent() {
+  const searchParams = useSearchParams();
+  const { user: authUser } = useAuth();
   const { tasks, projects, users, updateTaskStatus, deleteTask } = useTasks();
   const { query, setQuery } = useSearch();
   const { toast } = useToast();
   
+  const viewParam = searchParams.get('view');
+  const isMyIssuesView = viewParam === 'my-issues';
+
   const [activeFilter, setActiveFilter] = useState<ActiveStatusFilter>('ALL');
   const [shouldCrash, setShouldCrash] = useState(false);
 
@@ -47,25 +55,38 @@ export default function DashboardPage() {
     throw new Error('Simulated Crash: Failed to load dashboard telemetry!');
   }
 
+  // When in "My Issues" view, compute metrics specifically for current user's issues
+  const relevantTasks = useMemo(() => {
+    if (isMyIssuesView && authUser) {
+      return tasks.filter((t) => t.assigneeId === authUser.id);
+    }
+    return tasks;
+  }, [tasks, isMyIssuesView, authUser]);
+
   const stats = useMemo(() => {
-    const total = tasks.length;
-    const done = tasks.filter((t) => t.status === 'DONE').length;
-    const inProgress = tasks.filter((t) => t.status === 'IN_PROGRESS').length;
-    const todo = tasks.filter((t) => t.status === 'TODO').length;
+    const total = relevantTasks.length;
+    const done = relevantTasks.filter((t) => t.status === 'DONE').length;
+    const inProgress = relevantTasks.filter((t) => t.status === 'IN_PROGRESS').length;
+    const todo = relevantTasks.filter((t) => t.status === 'TODO').length;
     const rate = total > 0 ? Math.round((done / total) * 100) : 0;
     return { total, done, inProgress, todo, rate };
-  }, [tasks]);
+  }, [relevantTasks]);
 
   const currentFilters: TaskFilters = useMemo(() => ({
     search: query,
     status: activeFilter,
-  }), [query, activeFilter]);
+    assigneeId: isMyIssuesView && authUser ? authUser.id : undefined,
+  }), [query, activeFilter, isMyIssuesView, authUser]);
 
   const filteredTasks = useMemo(() => {
     const normalizedQuery = (currentFilters.search || '').trim().toLowerCase();
 
     return tasks.filter((task) => {
       if (currentFilters.status && currentFilters.status !== 'ALL' && task.status !== currentFilters.status) {
+        return false;
+      }
+
+      if (currentFilters.assigneeId && task.assigneeId !== currentFilters.assigneeId) {
         return false;
       }
 
@@ -160,7 +181,7 @@ export default function DashboardPage() {
         }
       );
     }
-  }, { dependencies: [activeFilter], scope: containerRef });
+  }, { dependencies: [activeFilter, isMyIssuesView], scope: containerRef });
 
   const handleToggleStatus = async (e: React.MouseEvent<HTMLButtonElement>, taskId: string, currentStatus: TaskStatus) => {
     e.stopPropagation();
@@ -213,23 +234,40 @@ export default function DashboardPage() {
         <div className={styles.heroText}>
           <div className={styles.pulseTag}>
             <span className={styles.pulseDot} />
-            <span>Active Sprint Cycle</span>
+            <span>{isMyIssuesView ? 'My Assigned Issues' : 'Active Sprint Cycle'}</span>
           </div>
-          <h1 className={styles.heading}>Engineering Overview</h1>
+          <h1 className={styles.heading}>
+            {isMyIssuesView ? 'My Work & Delivery' : 'Engineering Overview'}
+          </h1>
           <p className={styles.subheading}>
-            Real-time project telemetry, assigned issues, and delivery status.
+            {isMyIssuesView 
+              ? `Displaying issues currently assigned to ${authUser?.name || 'you'}.` 
+              : 'Real-time project telemetry, assigned issues, and delivery status.'}
           </p>
         </div>
 
         <div className={styles.heroActions}>
+          {isMyIssuesView && (
+            <Link 
+              href="/dashboard" 
+              className={styles.crashBtn}
+              title="View all workspace issues"
+            >
+              <UserCheck size={14} />
+              <span>All Workspace Tasks</span>
+            </Link>
+          )}
+
           <button
             type="button"
-            onClick={() => openCreateTaskModal()}
+            onClick={() => openCreateTaskModal({
+              assigneeId: isMyIssuesView && authUser ? authUser.id : undefined,
+            })}
             className={styles.primaryBtn}
             title="Create new issue (C)"
           >
             <Plus size={15} strokeWidth={2} />
-            <span>Create Issue</span>
+            <span>{isMyIssuesView ? 'New Task For Me' : 'Create Issue'}</span>
           </button>
 
           <button
@@ -246,9 +284,13 @@ export default function DashboardPage() {
 
       <section className={styles.metricsGrid} ref={metricsRef}>
         <div className={styles.metricCard}>
-          <span className={styles.metricLabel}>Total Issues</span>
+          <span className={styles.metricLabel}>
+            {isMyIssuesView ? 'My Issues' : 'Total Issues'}
+          </span>
           <span className={styles.metricValue}>{stats.total}</span>
-          <span className={styles.metricHint}>Active in workspace</span>
+          <span className={styles.metricHint}>
+            {isMyIssuesView ? 'Assigned to you' : 'Active in workspace'}
+          </span>
         </div>
 
         <div className={styles.metricCard}>
@@ -335,6 +377,8 @@ export default function DashboardPage() {
               <p>
                 {query.trim()
                   ? `No issues found matching "${query}".`
+                  : isMyIssuesView
+                  ? 'No issues assigned to you in this category.'
                   : 'No issues found in this category.'}
               </p>
               {query.trim() ? (
@@ -349,11 +393,14 @@ export default function DashboardPage() {
               ) : (
                 <button
                   type="button"
-                  onClick={() => openCreateTaskModal({ status: activeFilter === 'ALL' ? 'TODO' : activeFilter })}
+                  onClick={() => openCreateTaskModal({ 
+                    status: activeFilter === 'ALL' ? 'TODO' : activeFilter,
+                    assigneeId: isMyIssuesView && authUser ? authUser.id : undefined
+                  })}
                   className={styles.emptyActionBtn}
                 >
                   <Plus size={13} />
-                  <span>Create an Issue</span>
+                  <span>{isMyIssuesView ? 'Create Issue For Me' : 'Create an Issue'}</span>
                 </button>
               )}
             </div>
@@ -430,5 +477,13 @@ export default function DashboardPage() {
         </div>
       </section>
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div className={styles.dashboard} />}>
+      <DashboardContent />
+    </Suspense>
   );
 }

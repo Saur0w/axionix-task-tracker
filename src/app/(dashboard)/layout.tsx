@@ -46,7 +46,6 @@ export default function DashboardLayout({
           onClose={() => setMobileNavOpen(false)}
         />
 
-        {/* One create-issue modal for every page (header, sidebar and `C` all open it). */}
         <CreateTaskModal />
       </div>
     </SearchProvider>

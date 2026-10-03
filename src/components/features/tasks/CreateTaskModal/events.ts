@@ -5,6 +5,7 @@ export const CREATE_TASK_EVENT = 'axionix:create-task';
 export interface CreateTaskDefaults {
   projectId?: string;
   status?: TaskStatus;
+  assigneeId?: string;
 }
 
 export function openCreateTaskModal(defaults?: CreateTaskDefaults) {

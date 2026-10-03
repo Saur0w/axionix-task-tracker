@@ -135,7 +135,7 @@
   will-change: transform, opacity, filter;
 
   .path {
-    font-family: var(--font-geist-mono, monospace);
+    font-family: var(--font-geist-mono, monospace), serif;
     font-size: 0.85rem;
     color: #ffffff;
     background: rgba(255, 255, 255, 0.12);
@@ -147,7 +147,7 @@
 }
 
 .exceptionPill {
-  font-family: var(--font-geist-mono, monospace);
+  font-family: var(--font-geist-mono, monospace), serif;
   font-size: 0.78rem;
   color: #fca5a5;
   background: rgba(239, 68, 68, 0.14);

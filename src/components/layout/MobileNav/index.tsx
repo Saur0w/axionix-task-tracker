@@ -1,30 +1,32 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { 
-  Activity,
-  Inbox,
-  CheckCircle2,
-  GitPullRequest,
-  Compass,
-  FolderKanban,
-  Bot,
-  BarChart3,
-  Palette,
-  Circle,
   X, 
   LogOut,
   Sun,
-  Moon
+  Moon,
+  Plus
 } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
+import { useTasks } from '@/context/TaskContext';
 import { getInitials } from '@/utils/format';
 import { User } from '@/types';
 import AxionixLogo from '@/components/ui/Logo';
+import { CORE_NAV_ITEMS, isNavItemActive } from '@/components/layout/navConfig';
 import styles from './style.module.scss';
+
+const PROJECT_COLORS = [
+  '#6366f1',
+  '#10b981',
+  '#f59e0b',
+  '#ec4899',
+  '#06b6d4',
+  '#8b5cf6',
+];
 
 interface MobileNavProps {
   isOpen: boolean;
@@ -33,18 +35,29 @@ interface MobileNavProps {
   onLogout?: () => void;
 }
 
-export default function MobileNav({
+function MobileNavContent({
   isOpen,
   onClose,
   user,
   onLogout,
 }: MobileNavProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { theme, toggleTheme } = useTheme();
   const { user: authUser, logout: authLogout } = useAuth();
+  const { tasks, projects } = useTasks();
 
-  const currentUser = user || authUser || { name: 'Saurabh Thapliyal', role: 'Frontend Developer' };
+  const currentUser = user || authUser || { 
+    id: 'user-1',
+    name: 'Saurabh Thapliyal', 
+    email: 'sthap@axionix.dev',
+    role: 'Frontend Developer' 
+  };
   const handleLogout = onLogout || (() => authLogout());
+
+  const myIssuesCount = tasks.filter(
+    (t) => t.assigneeId === currentUser.id && t.status !== 'DONE'
+  ).length;
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -110,91 +123,71 @@ export default function MobileNav({
         <div className={styles.scrollArea}>
           {/* Main Navigation */}
           <nav className={styles.navGroup}>
-            <Link
-              href="/dashboard"
-              onClick={onClose}
-              className={`${styles.navItem} ${pathname === '/dashboard' ? styles.active : ''}`}
-            >
-              <Activity size={15} />
-              <span>Pulse</span>
-            </Link>
+            {CORE_NAV_ITEMS.map((item) => {
+              const Icon = item.icon;
+              const active = isNavItemActive(pathname, searchParams, item.href);
+              const badge = item.id === 'my-issues'
+                ? (myIssuesCount > 0 ? myIssuesCount : undefined)
+                : item.id === 'projects'
+                ? projects.length
+                : undefined;
 
-            <Link
-              href="/dashboard"
-              onClick={onClose}
-              className={styles.navItem}
-            >
-              <Inbox size={15} />
-              <span>Inbox</span>
-              <span className={styles.badge}>3</span>
-            </Link>
-
-            <Link
-              href="/projects/proj-1"
-              onClick={onClose}
-              className={`${styles.navItem} ${pathname.startsWith('/projects/') ? styles.active : ''}`}
-            >
-              <CheckCircle2 size={15} />
-              <span>My issues</span>
-            </Link>
-
-            <Link
-              href="/dashboard"
-              onClick={onClose}
-              className={styles.navItem}
-            >
-              <GitPullRequest size={15} />
-              <span>Reviews</span>
-            </Link>
+              return (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  onClick={onClose}
+                  className={`${styles.navItem} ${active ? styles.active : ''}`}
+                >
+                  <Icon size={15} />
+                  <span>{item.label}</span>
+                  {badge !== undefined && (
+                    <span className={styles.badge}>{badge}</span>
+                  )}
+                </Link>
+              );
+            })}
           </nav>
 
           <div className={styles.sectionDivider} />
 
-          {/* Workspace */}
-          <div className={styles.sectionHeader}>Workspace</div>
+          {/* Dynamic Projects */}
+          <div className={styles.sectionHeader}>Projects</div>
           <nav className={styles.navGroup}>
-            <Link href="/dashboard" onClick={onClose} className={styles.navItem}>
-              <Compass size={15} />
-              <span>Initiatives</span>
-            </Link>
+            {projects.map((project, index) => {
+              const projectHref = `/projects/${project.id}`;
+              const isActive = pathname === projectHref;
+              const dotColor = PROJECT_COLORS[index % PROJECT_COLORS.length];
+
+              return (
+                <Link
+                  key={project.id}
+                  href={projectHref}
+                  onClick={onClose}
+                  className={`${styles.navItem} ${isActive ? styles.active : ''}`}
+                >
+                  <span 
+                    style={{ 
+                      width: 8, 
+                      height: 8, 
+                      borderRadius: '50%', 
+                      backgroundColor: dotColor,
+                      flexShrink: 0
+                    }} 
+                  />
+                  <span>{project.name}</span>
+                </Link>
+              );
+            })}
+
             <Link
               href="/projects"
               onClick={onClose}
-              className={`${styles.navItem} ${pathname === '/projects' ? styles.active : ''}`}
-            >
-              <FolderKanban size={15} />
-              <span>Projects</span>
-              <span className={styles.badge}>5</span>
-            </Link>
-          </nav>
-
-          <div className={styles.sectionDivider} />
-
-          {/* Favorites */}
-          <div className={styles.sectionHeader}>Favorites</div>
-          <nav className={styles.navGroup}>
-            <Link
-              href="/dashboard"
-              onClick={onClose}
               className={styles.navItem}
+              style={{ color: 'var(--text-muted)' }}
             >
-              <Circle size={8} fill="#f59e0b" strokeWidth={0} />
-              <span>Faster app launch</span>
-            </Link>
-
-            <Link href="/dashboard" onClick={onClose} className={styles.navItem}>
-              <Bot size={15} style={{ color: '#a855f7' }} />
-              <span>Agent tasks</span>
-            </Link>
-
-            <Link href="/dashboard" onClick={onClose} className={styles.navItem}>
-              <BarChart3 size={15} style={{ color: '#38bdf8' }} />
-              <span>Agent Insights</span>
-            </Link>
-
-            <Link href="/dashboard" onClick={onClose} className={styles.navItem}>
-              <Palette size={15} style={{ color: '#fb7185' }} />
-              <span>UI Refresh</span>
+              <Plus size={14} />
+              <span>New Project</span>
             </Link>
           </nav>
         </div>
@@ -223,5 +216,13 @@ export default function MobileNav({
         </div>
       </div>
     </>
+  );
+}
+
+export default function MobileNav(props: MobileNavProps) {
+  return (
+    <Suspense fallback={null}>
+      <MobileNavContent {...props} />
+    </Suspense>
   );
 }

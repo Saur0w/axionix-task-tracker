@@ -8,6 +8,8 @@ import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import styles from './error.module.scss';
 
+gsap.registerPlugin(useGSAP);
+
 interface ErrorProps {
   error: Error & { digest?: string };
   reset: () => void;

@@ -25,6 +25,7 @@
   justify-content: space-between;
   padding: 0 10px;
   height: 44px;
+  position: relative;
 
   .workspaceSelector {
     display: flex;
@@ -464,6 +465,297 @@
     &:hover {
       background: var(--danger-bg);
     }
+  }
+}
+
+/* Workspace Popover */
+.workspacePopover {
+  position: absolute;
+  top: 42px;
+  left: 10px;
+  width: 220px;
+  background: var(--bg-surface-elevated, var(--bg-surface));
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  padding: 8px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  animation: popoverFade 0.15s ease-out;
+
+  .popoverHeader {
+    display: flex;
+    flex-direction: column;
+    padding: 4px 6px;
+
+    .popoverName {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .popoverMeta {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+  }
+
+  .popoverDivider {
+    height: 1px;
+    background: var(--border-subtle);
+    margin: 2px 0;
+  }
+
+  .workspaceOption {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: var(--radius-xs);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    transition: background-color var(--transition-fast);
+    color: var(--text-primary);
+    font-size: 0.76rem;
+
+    &:hover {
+      background: var(--bg-hover);
+    }
+
+    &.activeWorkspace {
+      background: var(--bg-active-nav);
+      font-weight: 500;
+    }
+
+    .wsLeft {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .checkIcon {
+      color: var(--primary);
+    }
+  }
+
+  .popoverActionBtn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px;
+    border-radius: var(--radius-xs);
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.74rem;
+    font-weight: 450;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-decoration: none;
+
+    &:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+  }
+}
+
+/* Settings Popover */
+.settingsPopover {
+  position: absolute;
+  bottom: 46px;
+  right: 10px;
+  width: 220px;
+  background: var(--bg-surface-elevated, var(--bg-surface));
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  padding: 8px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  animation: popoverFade 0.15s ease-out;
+
+  .settingRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 8px;
+    font-size: 0.75rem;
+    color: var(--text-primary);
+    border-radius: var(--radius-xs);
+    background: transparent;
+    border: none;
+    width: 100%;
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+
+    &:hover {
+      background: var(--bg-hover);
+    }
+
+    .settingLabel {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--text-secondary);
+    }
+
+    .settingValue {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+  }
+}
+
+/* Help Modal Dialog */
+.helpModalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: popoverFade 0.15s ease-out;
+}
+
+.helpModal {
+  background: var(--bg-surface-elevated, var(--bg-surface));
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-lg, 12px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: var(--text-primary);
+
+  .helpHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin: 0;
+      letter-spacing: -0.01em;
+    }
+
+    .closeBtn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: var(--radius-xs);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover {
+        color: var(--text-primary);
+        background: var(--bg-hover);
+      }
+    }
+  }
+
+  .shortcutList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .shortcutRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+
+    kbd {
+      background: var(--bg-hover-strong);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-family: inherit;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  .helpFooter {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    button {
+      padding: 5px 12px;
+      border-radius: var(--radius-xs);
+      background: var(--bg-hover-strong);
+      border: 1px solid var(--border-medium);
+      color: var(--text-primary);
+      font-size: 0.74rem;
+      cursor: pointer;
+      font-weight: 500;
+
+      &:hover {
+        background: var(--primary);
+        color: #fff;
+        border-color: var(--primary);
+      }
+    }
+  }
+}
+
+.projectColorDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.newProjectLink {
+  height: 26px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 8px;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 450;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  margin-top: 2px;
+
+  &:hover {
+    color: var(--primary);
+    background: var(--bg-hover);
   }
 }
 
