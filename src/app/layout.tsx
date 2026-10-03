@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { TaskProvider } from "@/context/TaskContext";
+import { ToastProvider } from "@/context/ToastContext";
+import { themeInitScript } from "@/utils/themeScript";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -25,12 +27,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" data-theme="dark" className={`${geistSans.variable} ${geistMono.variable}`}>
+    // suppressHydrationWarning: the inline script may change data-theme before React hydrates.
+    <html
+      lang="en"
+      data-theme="dark"
+      className={`${geistSans.variable} ${geistMono.variable}`}
+      suppressHydrationWarning
+    >
+      <head>
+        {/* Apply the saved theme before first paint to avoid a dark -> light flash. */}
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body>
         <ThemeProvider>
-          <TaskProvider>
-            {children}
-          </TaskProvider>
+          <ToastProvider>
+            <TaskProvider>
+              {children}
+            </TaskProvider>
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>

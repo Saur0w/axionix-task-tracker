@@ -39,7 +39,7 @@
     transition: background-color var(--transition-fast);
 
     &:hover {
-      background-color: rgba(255, 255, 255, 0.04);
+      background-color: var(--bg-hover);
 
       .chevron {
         color: var(--text-primary);
@@ -85,7 +85,7 @@
 
       &:hover {
         color: var(--text-primary);
-        background-color: rgba(255, 255, 255, 0.05);
+        background-color: var(--bg-hover);
       }
     }
   }
@@ -147,12 +147,12 @@
     min-width: 16px;
     text-align: center;
     border-radius: 9999px;
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--bg-hover);
   }
 
   &:hover {
     color: var(--text-primary);
-    background-color: rgba(255, 255, 255, 0.04);
+    background-color: var(--bg-hover);
 
     .itemIcon {
       color: var(--text-primary);
@@ -258,7 +258,7 @@
     transition: background-color var(--transition-fast);
 
     &:hover {
-      background-color: rgba(255, 255, 255, 0.04);
+      background-color: var(--bg-hover);
     }
   }
 
@@ -266,7 +266,7 @@
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--bg-hover-strong);
     border: 1px solid var(--border-medium);
     display: flex;
     align-items: center;
@@ -313,7 +313,7 @@
 
       &:hover {
         color: var(--text-primary);
-        background-color: rgba(255, 255, 255, 0.05);
+        background-color: var(--bg-hover);
       }
     }
   }

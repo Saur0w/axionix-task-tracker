@@ -8,6 +8,10 @@
   --bg-surface-hover: #212227;
   --bg-input: #121316;
   --bg-active-nav: rgba(255, 255, 255, 0.08);
+  --bg-hover: rgba(255, 255, 255, 0.04);
+  --bg-hover-strong: rgba(255, 255, 255, 0.07);
+
+  color-scheme: dark;
 
   --border-subtle: rgba(255, 255, 255, 0.07);
   --border-medium: rgba(255, 255, 255, 0.12);
@@ -49,6 +53,10 @@
   --bg-surface-hover: #e4e5e8;
   --bg-input: #ffffff;
   --bg-active-nav: rgba(0, 0, 0, 0.06);
+  --bg-hover: rgba(0, 0, 0, 0.035);
+  --bg-hover-strong: rgba(0, 0, 0, 0.06);
+
+  color-scheme: light;
 
   --border-subtle: rgba(0, 0, 0, 0.08);
   --border-medium: rgba(0, 0, 0, 0.14);

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { 
   Search, 
@@ -9,75 +9,62 @@ import {
   Moon, 
   Plus, 
   Menu, 
-  AlertTriangle
+  AlertTriangle,
+  X
 } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
+import { useSearch } from '@/context/SearchContext';
+import { useToast } from '@/context/ToastContext';
+import { simulateErrorStore, useSimulateError } from '@/context/TaskContext';
+import { openCreateTaskModal } from '@/components/features/tasks/CreateTaskModal/events';
 import styles from './style.module.scss';
 
 interface HeaderProps {
   onOpenMobileNav?: () => void;
   onCreateClick?: () => void;
-  onSearchChange?: (query: string) => void;
 }
 
 export default function Header({ 
   onOpenMobileNav, 
   onCreateClick,
-  onSearchChange 
 }: HeaderProps) {
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
+  const { query, setQuery } = useSearch();
+  const { toast } = useToast();
+  const simulateError = useSimulateError();
   const [isSearchActive, setIsSearchActive] = useState(false);
-  const [searchVal, setSearchVal] = useState('');
-  
-  const [simulateError, setSimulateError] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('axionix_simulate_error') === 'true';
-    }
-    return false;
-  });
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Sync simulated error state across tabs / components (Assignment Req #3)
-  useEffect(() => {
-    const handleStorageChange = () => {
-      setSimulateError(localStorage.getItem('axionix_simulate_error') === 'true');
-    };
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('axionix_error_toggle', handleStorageChange);
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('axionix_error_toggle', handleStorageChange);
-    };
-  }, []);
+  const showSearchInput = isSearchActive || query.length > 0;
 
-  // Keyboard shortcut listener for Cmd+K / Ctrl+K
+  // Cmd/Ctrl + K opens and focuses the search field from anywhere.
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         setIsSearchActive(true);
-      }
-      if (e.key === 'Escape' && isSearchActive) {
-        setIsSearchActive(false);
+        requestAnimationFrame(() => searchInputRef.current?.focus());
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isSearchActive]);
+  }, []);
 
-  const toggleSimulateError = () => {
-    const nextState = !simulateError;
-    setSimulateError(nextState);
-    localStorage.setItem('axionix_simulate_error', nextState ? 'true' : 'false');
-    window.dispatchEvent(new Event('axionix_error_toggle'));
+  const clearSearch = () => {
+    setQuery('');
+    setIsSearchActive(false);
   };
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setSearchVal(val);
-    if (onSearchChange) {
-      onSearchChange(val);
-    }
+  // Assignment Req #3: flip the mock API into failure mode.
+  const toggleSimulateError = () => {
+    const next = !simulateErrorStore.get();
+    simulateErrorStore.set(next);
+    toast(
+      next
+        ? { variant: 'error', title: 'Mock Error enabled', description: 'Creating or updating issues will now fail.' }
+        : { variant: 'success', title: 'Mock Error disabled', description: 'Requests are back to normal.' }
+    );
   };
 
   const getPageTitle = () => {
@@ -107,28 +94,37 @@ export default function Header({
         </div>
       </div>
 
-      {/* Right: Search Pill, Mock Error Toggle, Theme, Notifications & New Issue */}
+      {/* Right: Search, Mock Error Toggle, Theme, Notifications & New Issue */}
       <div className={styles.rightSection}>
-        {isSearchActive ? (
-          <div className={styles.searchActiveWrapper}>
+        {showSearchInput ? (
+          <div className={styles.searchActiveWrapper} role="search">
             <Search size={13} strokeWidth={1.5} className={styles.searchIcon} />
             <input
-              type="text"
+              ref={searchInputRef}
+              type="search"
               autoFocus
-              value={searchVal}
-              onChange={handleSearch}
-              onBlur={() => !searchVal && setIsSearchActive(false)}
-              placeholder="Search or jump to..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onBlur={() => !query && setIsSearchActive(false)}
+              onKeyDown={(e) => e.key === 'Escape' && clearSearch()}
+              placeholder="Filter issues…"
+              aria-label="Filter issues"
               className={styles.searchInput}
             />
-            <kbd className={styles.escBadge} onClick={() => setIsSearchActive(false)}>ESC</kbd>
+            {query ? (
+              <button type="button" className={styles.clearBtn} onClick={clearSearch} aria-label="Clear search">
+                <X size={12} strokeWidth={1.75} />
+              </button>
+            ) : (
+              <kbd className={styles.escBadge}>ESC</kbd>
+            )}
           </div>
         ) : (
           <button
             type="button"
             onClick={() => setIsSearchActive(true)}
             className={styles.searchPillBtn}
-            title="Search or jump to... (⌘K)"
+            title="Search (Ctrl+K)"
           >
             <Search size={13} strokeWidth={1.5} />
             <span>Search...</span>
@@ -143,7 +139,7 @@ export default function Header({
           type="button"
           onClick={toggleSimulateError}
           className={`${styles.errorToggle} ${simulateError ? styles.errorActive : ''}`}
-          title="Toggle simulated error (Req #3)"
+          title="Make the mock API fail every request (Req #3)"
           aria-pressed={simulateError}
         >
           <AlertTriangle size={12} strokeWidth={1.5} />
@@ -175,7 +171,7 @@ export default function Header({
         {/* New Issue Button */}
         <button
           type="button"
-          onClick={onCreateClick || (() => window.dispatchEvent(new CustomEvent('axionix_create_issue')))}
+          onClick={onCreateClick || (() => openCreateTaskModal())}
           className={styles.newIssueBtn}
           title="New Issue (C)"
           aria-label="New Issue"

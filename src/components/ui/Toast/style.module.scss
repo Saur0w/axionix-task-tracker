@@ -1,0 +1,110 @@
+.viewport {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(360px, calc(100vw - 32px));
+  pointer-events: none;
+
+  @media (max-width: 540px) {
+    right: 16px;
+    bottom: 16px;
+  }
+}
+
+.toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 12px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  animation: toastIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.18s ease, transform 0.18s ease, filter 0.18s ease;
+
+  &.leaving {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+    filter: blur(4px);
+  }
+
+  .icon {
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  &.success .icon {
+    color: var(--success);
+  }
+
+  &.error {
+    border-color: color-mix(in srgb, var(--danger) 45%, var(--border-medium));
+
+    .icon {
+      color: var(--danger);
+    }
+  }
+
+  &.info .icon {
+    color: var(--primary);
+  }
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+
+  .title {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 550;
+    color: var(--text-primary);
+    line-height: 1.35;
+  }
+
+  .description {
+    margin: 2px 0 0;
+    font-size: 0.74rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+  }
+}
+
+.close {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: var(--radius-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--text-primary);
+    background: var(--bg-hover);
+  }
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}

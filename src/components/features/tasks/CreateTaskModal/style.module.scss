@@ -1,0 +1,345 @@
+/* Native <dialog> with CSS entry/exit (works for Esc, backdrop click and buttons alike). */
+.dialog {
+  width: min(620px, calc(100vw - 32px));
+  max-height: calc(100dvh - 64px);
+  margin: 12vh auto auto;
+  padding: 0;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* Closed state (also the exit target) */
+  opacity: 0;
+  transform: translateY(10px) scale(0.98);
+  filter: blur(8px);
+  transition:
+    opacity 0.2s ease,
+    transform 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.2s ease,
+    overlay 0.24s allow-discrete,
+    display 0.24s allow-discrete;
+
+  &::backdrop {
+    background: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0);
+    transition:
+      background-color 0.24s ease,
+      backdrop-filter 0.24s ease,
+      overlay 0.24s allow-discrete,
+      display 0.24s allow-discrete;
+  }
+
+  &[open] {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+
+  &[open]::backdrop {
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(6px);
+  }
+
+  /* Subtle top highlight, Linear-style */
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.14), transparent);
+    pointer-events: none;
+  }
+
+  @media (max-width: 540px) {
+    margin-top: 6vh;
+  }
+}
+
+/* Entry starting point */
+@starting-style {
+  .dialog[open] {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+    filter: blur(8px);
+  }
+
+  .dialog[open]::backdrop {
+    background: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0);
+  }
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px 4px 18px;
+
+  .crumbs {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.76rem;
+    min-width: 0;
+  }
+
+  .crumbProject {
+    color: var(--text-secondary);
+    padding: 2px 7px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xs);
+    background: var(--bg-hover);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 220px;
+  }
+
+  .crumbSep {
+    color: var(--text-muted);
+  }
+
+  .crumbCurrent {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+}
+
+.iconBtn {
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &:hover {
+    color: var(--text-primary);
+    background: var(--bg-hover);
+  }
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 18px 12px;
+}
+
+.titleInput,
+.descriptionInput {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-family: inherit;
+  padding: 0;
+
+  &::placeholder {
+    color: var(--text-muted);
+  }
+}
+
+.titleInput {
+  font-size: 1.15rem;
+  font-weight: 550;
+  letter-spacing: -0.015em;
+  height: 34px;
+}
+
+.descriptionInput {
+  font-size: 0.84rem;
+  line-height: 1.55;
+  resize: vertical;
+  min-height: 64px;
+  max-height: 240px;
+  color: var(--text-secondary);
+}
+
+/* Property pills (status, priority, assignee, project, due) */
+.properties {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 18px 14px;
+}
+
+.pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 4px 0 9px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--bg-hover);
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+
+  &:hover {
+    border-color: var(--border-medium);
+  }
+
+  &:focus-within {
+    border-color: var(--border-focus);
+  }
+
+  .pillLabel {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+
+  select,
+  input {
+    appearance: none;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.76rem;
+    font-weight: 500;
+    padding: 0 6px 0 0;
+    height: 100%;
+    cursor: pointer;
+    color-scheme: inherit;
+  }
+
+  option {
+    background: var(--bg-surface-elevated);
+    color: var(--text-primary);
+  }
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px 10px 18px;
+  border-top: 1px solid var(--border-subtle);
+
+  @media (max-width: 540px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.error {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  font-size: 0.74rem;
+  color: var(--danger);
+  line-height: 1.4;
+
+  &:empty {
+    visibility: hidden;
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.hint {
+  display: flex;
+  gap: 3px;
+  margin-right: 4px;
+
+  kbd {
+    font-family: inherit;
+    font-size: 0.62rem;
+    color: var(--text-muted);
+    padding: 1px 5px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 3px;
+    background: var(--bg-hover);
+  }
+
+  @media (max-width: 540px) {
+    display: none;
+  }
+}
+
+.secondaryBtn,
+.primaryBtn {
+  height: 30px;
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 550;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--transition-fast);
+}
+
+.secondaryBtn {
+  border: 1px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text-secondary);
+
+  &:hover {
+    color: var(--text-primary);
+    background: var(--bg-hover);
+  }
+}
+
+.primaryBtn {
+  border: none;
+  background: var(--btn-create-bg);
+  color: var(--btn-create-text);
+
+  &:hover:not(:disabled) {
+    background: var(--btn-create-hover);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: progress;
+  }
+}
+
+.spinner {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

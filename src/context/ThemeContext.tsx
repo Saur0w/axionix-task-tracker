@@ -1,6 +1,8 @@
-"use client";
+'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useLayoutEffect, useSyncExternalStore } from 'react';
+import { createPersistentStore } from '@/utils/persistentStore';
+import { THEME_STORAGE_KEY } from '@/utils/themeScript';
 
 type Theme = 'dark' | 'light';
 
@@ -10,33 +12,30 @@ interface ThemeContextType {
   setTheme: (theme: Theme) => void;
 }
 
+const themeStore = createPersistentStore<Theme>(
+  THEME_STORAGE_KEY,
+  'dark',
+  (v): v is Theme => v === 'dark' || v === 'light'
+);
+
+const applyTheme = (theme: Theme) => document.documentElement.setAttribute('data-theme', theme);
+
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(() => {
-    if (typeof window !== 'undefined') {
-      const savedTheme = localStorage.getItem('axionix_theme') as Theme | null;
-      if (savedTheme === 'light' || savedTheme === 'dark') {
-        return savedTheme;
-      }
-    }
-    return 'dark';
-  });
+  const theme = useSyncExternalStore(themeStore.subscribe, themeStore.get, themeStore.getServer);
 
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
+  // Re-apply after React's dev Strict Mode remount resets <html> attributes. No-op in production.
+  useLayoutEffect(() => {
+    applyTheme(themeStore.get());
+  }, []);
 
-  const setTheme = (newTheme: Theme) => {
-    setThemeState(newTheme);
-    localStorage.setItem('axionix_theme', newTheme);
-    document.documentElement.setAttribute('data-theme', newTheme);
+  const setTheme = (next: Theme) => {
+    themeStore.set(next);
+    applyTheme(next);
   };
 
-  const toggleTheme = () => {
-    const nextTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(nextTheme);
-  };
+  const toggleTheme = () => setTheme(themeStore.get() === 'dark' ? 'light' : 'dark');
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
