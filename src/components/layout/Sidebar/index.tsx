@@ -26,13 +26,11 @@ import { useTasks } from '@/context/TaskContext';
 import { useAuth } from '@/context/AuthContext';
 import { openCreateTaskModal } from '@/components/features/tasks/CreateTaskModal/events';
 import { getInitials } from '@/utils/format';
+import { User } from '@/types';
 import styles from './style.module.scss';
 
 interface SidebarProps {
-  user?: {
-    name: string;
-    role: string;
-  };
+  user?: User;
   onLogout?: () => void;
   onOpenSearch?: () => void;
   onCreateIssue?: () => void;
@@ -51,7 +49,12 @@ export default function Sidebar({
   const [favoritesOpen, setFavoritesOpen] = useState(true);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
-  const currentUser = user || authUser || { name: 'Saurabh Thapliyal', role: 'Frontend Developer', id: 'user-1' };
+  const currentUser: User = user || authUser || { 
+    id: 'user-1', 
+    name: 'Saurabh Thapliyal', 
+    email: 'sthap@axionix.dev', 
+    role: 'Frontend Developer' 
+  };
   const handleLogout = onLogout || (() => authLogout());
 
   return (

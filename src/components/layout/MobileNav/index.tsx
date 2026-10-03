@@ -22,16 +22,14 @@ import {
 import { useTheme } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
 import { getInitials } from '@/utils/format';
+import { User } from '@/types';
 import AxionixLogo from '@/components/ui/Logo';
 import styles from './style.module.scss';
 
 interface MobileNavProps {
   isOpen: boolean;
   onClose: () => void;
-  user?: {
-    name: string;
-    role: string;
-  };
+  user?: User;
   onLogout?: () => void;
 }
 
