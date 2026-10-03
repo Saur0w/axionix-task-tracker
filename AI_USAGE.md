@@ -1,39 +1,34 @@
 # AI Usage Log
 
-This document tracks the usage of AI tools, models, and assistants in the development of the **Axionix Task Tracker** project.
+This document summarizes the use of AI assistants and models during the development of **Axionix Task Tracker**.
 
 ---
 
-## 1. Application Error Page
+## Overview
 
-- **Date**: October 2026
-- **Tool / Environment**: Google Antigravity IDE
-- **Model Used**: Gemini 3.8 Flash (Antigravity)
-- **Target Files**:
-  - `src/app/error.tsx`
-  - `src/app/error.module.scss`
+The core architecture, component logic, data models, and features were designed and implemented directly for this project. AI models were utilized as pair-programming assistants for structural scaffolding, responsiveness, GSAP animation orchestration, and final code verification.
 
-### Description of AI Assistance
-Gemini 3.8 Flash was utilized to design, scaffold, and implement the custom Next.js application error boundary page.
+---
 
-### Key Contributions & Features
-1. **Interactive Component Architecture (`error.tsx`)**:
-   - Built a Next.js client error boundary component (`'use client'`) receiving `error` and `reset` props.
-   - Integrated clipboard copying functionality with real-time feedback state for error messages.
-   - Implemented an animated retry mechanism with smooth icon rotation before triggering `reset()`.
-   - Included path display using `usePathname()` and navigation fallback back to the dashboard.
+## Models & Assistance Breakdown
 
-2. **GSAP Motion & Animations**:
-   - Orchestrated entrance timelines using `@gsap/react` (`useGSAP`).
-   - Created masked staggered digit reveals (`500` status code).
-   - Added support for accessibility with `prefers-reduced-motion` detection.
+### 1. Google Gemini 3.8 Flash (Antigravity IDE)
+- **Scope**: Error boundary, page scaffolding, and initial layout structure.
+- **Contributions**:
+  - Scaffolding the Next.js client-side error boundary ([src/app/error.tsx](file:///d:/Web%20Dev/axionix-task-tracker/src/app/error.tsx)) with retry rotation and clipboard copy.
+  - Initial setup of SCSS styles, glassmorphism tokens, and responsive layout foundations.
+  - GSAP timeline setup for status digit entrance reveals.
 
-3. **Styling & Visual Design (`error.module.scss`)**:
-   - Crafted a dark sci-fi aesthetic matching the background artwork (`/images/error.jpg`).
-   - Implemented radial gradients, glassmorphism (`backdrop-filter`), and animated glowing status pulse dots.
-   - Built fully responsive layouts adapting seamlessly across desktop and mobile screens.
+### 2. Claude Opus 5.5
+- **Scope**: Responsive design, code refactoring, and quality review.
+- **Contributions**:
+  - Refining mobile responsiveness across the sidebar, header, and dashboard filter tabs.
+  - Refactoring persistent storage using `useSyncExternalStore` to eliminate server-client hydration mismatches.
+  - Performing code review, type-checking passes, and edge-case verification across the task management flows.
 
-### Human Verification & Oversight
-- Verified Next.js App Router error handling conventions.
-- Tested retry flows, clipboard copying, and responsive breakpoints.
-- Reviewed and refined styling, layout alignment, and typography tokens.
+---
+
+## Human Verification & Control
+- Every AI suggestion was reviewed, tested, and validated against assignment specifications.
+- Verified Next.js 16 App Router conventions and zero-error TypeScript builds (`npm run build`).
+- Manually tested key interaction flows: user registration, status toggles, simulated failure mode (Req #3), live search (`⌘K`), and Kanban card movements.

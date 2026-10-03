@@ -38,7 +38,6 @@ export default function Header({
 
   const showSearchInput = isSearchActive || query.length > 0;
 
-  // Cmd/Ctrl + K opens and focuses the search field from anywhere.
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
@@ -56,7 +55,6 @@ export default function Header({
     setIsSearchActive(false);
   };
 
-  // Assignment Req #3: flip the mock API into failure mode.
   const toggleSimulateError = () => {
     const next = !simulateErrorStore.get();
     simulateErrorStore.set(next);
@@ -76,7 +74,6 @@ export default function Header({
 
   return (
     <header className={styles.header}>
-      {/* Left: Mobile Navigation Trigger & Dynamic Page Breadcrumb */}
       <div className={styles.leftSection}>
         <button
           type="button"
@@ -94,7 +91,6 @@ export default function Header({
         </div>
       </div>
 
-      {/* Right: Search, Mock Error Toggle, Theme, Notifications & New Issue */}
       <div className={styles.rightSection}>
         {showSearchInput ? (
           <div className={styles.searchActiveWrapper} role="search">
@@ -131,10 +127,7 @@ export default function Header({
             <kbd className={styles.shortcutKey}>⌘K</kbd>
           </button>
         )}
-
         <div className={styles.divider} />
-
-        {/* Assignment Req #3: Simulated Network Error Toggle */}
         <button
           type="button"
           onClick={toggleSimulateError}
@@ -146,7 +139,6 @@ export default function Header({
           <span>{simulateError ? 'Error: ON' : 'Mock Error'}</span>
         </button>
 
-        {/* Notifications */}
         <button
           type="button"
           className={styles.iconBtn}
@@ -157,7 +149,6 @@ export default function Header({
           <span className={styles.bellDot} />
         </button>
 
-        {/* Dark / Light Mode Switch */}
         <button
           type="button"
           onClick={toggleTheme}
@@ -168,7 +159,6 @@ export default function Header({
           {theme === 'dark' ? <Sun size={14} strokeWidth={1.5} /> : <Moon size={14} strokeWidth={1.5} />}
         </button>
 
-        {/* New Issue Button */}
         <button
           type="button"
           onClick={onCreateClick || (() => openCreateTaskModal())}

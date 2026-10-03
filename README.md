@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Axionix Task Tracker
+
+A sleek, Linear-inspired project management and issue-tracking platform built with **Next.js 16 (App Router)**, **TypeScript**, **SCSS Modules**, and **GSAP**.
+
+---
+
+## Features
+
+- **Engineering Pulse & Dashboard (`/dashboard`)**:
+  - Live sprint metrics (Total Issues, In Progress, Completed, Completion Rate).
+  - Status filter tabs (`All`, `In Progress`, `To Do`, `Done`) with mobile-friendly horizontal scroll.
+  - Linear-styled task rows with monospace keys (`AX-1`), priority tags, assignee avatars, and smart due date badges with overdue alerts.
+  - Interactive status toggles and quick delete actions with toast feedback.
+- **Global Search & Shortcuts**:
+  - `⌘K` / `Ctrl+K`: Live issue filter across keys, titles, descriptions, projects, and assignees.
+  - `C`: Quick-create issue modal from any page.
+- **Interactive Kanban Board (`/projects/[id]`)**:
+  - 3-column workflow (**To Do**, **In Progress**, **Done**) with column badges.
+  - Inline issue creation per column.
+  - One-click task transitions (`Start →`, `← Back`, `Done ✓`, `Re-open`) with optimistic updates and error rollback.
+- **Projects Directory (`/projects`)**:
+  - Visual project cards with delivery progress bars, health indicators (`On Track`, `Under Review`, `Completed`), and assigned member avatars.
+  - Modal to create new initiatives on the fly.
+- **Authentication & User Management (`/login`)**:
+  - Clean login and registration flow with role selection.
+  - 1-Click demo profile selector for testing.
+  - Interactive profile switcher in the sidebar footer.
+- **Simulated Network Error Mode (Req #3)**:
+  - Header toggle (`Mock Error`) to simulate network failures on all mutations, testing optimistic update rollbacks and toast notifications.
+  - Test crash button to trigger the custom Next.js error boundary (`error.tsx`).
+- **Dark / Light Mode**:
+  - Theme toggle with zero hydration flash using inline script injection.
+
+---
+
+## Tech Stack
+
+- **Framework**: Next.js 16 (App Router, Turbopack)
+- **Language**: TypeScript (Strict mode)
+- **Styling**: Vanilla SCSS Modules with CSS custom properties
+- **Animations**: GSAP (`@gsap/react`)
+- **State Management**: `useSyncExternalStore` with persistent `localStorage` cache
+- **Icons**: Lucide React
+
+---
+
+## Demo Accounts
+
+You can log in directly using one-click demo profiles on `/login` or enter:
+
+| Name | Email | Role |
+| :--- | :--- | :--- |
+| **Saurabh Thapliyal** | `sthap@axionix.dev` | Frontend Developer Intern |
+| **John Doe** | `jdoe@example.com` | Product Designer |
+| **Asta** | `asta@axionix.dev` | Product Designer |
+
+*Password: Any string with 4+ characters (e.g., `password123`).*
+
+---
 
 ## Getting Started
 
-First, run the development server:
+1. **Install dependencies**:
+   ```bash
+   npm install
+   ```
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+2. **Run local development server**:
+   ```bash
+   npm run dev
+   ```
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. **Production build & type check**:
+   ```bash
+   npm run build
+   ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## License
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
