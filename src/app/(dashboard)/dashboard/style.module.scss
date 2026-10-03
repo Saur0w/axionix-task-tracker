@@ -1,4 +1,5 @@
 .dashboard {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 28px;
@@ -8,12 +9,27 @@
   color: var(--text-primary);
 }
 
+.ambientGlow {
+  position: absolute;
+  top: -80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 280px;
+  background: radial-gradient(ellipse at center, rgba(94, 106, 210, 0.07) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
 .heroRow {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 20px;
   flex-wrap: wrap;
+  will-change: transform, opacity, filter;
 
   .pulseTag {
     display: inline-flex;
@@ -36,9 +52,9 @@
   }
 
   .heading {
-    font-size: 1.5rem;
+    font-size: 1.55rem;
     font-weight: 600;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
     color: var(--text-primary);
     margin: 0 0 4px 0;
   }
@@ -57,7 +73,7 @@
 
   .primaryBtn {
     height: 32px;
-    padding: 0 12px;
+    padding: 0 13px;
     background-color: var(--btn-create-bg);
     color: var(--btn-create-text);
     border: none;
@@ -69,9 +85,11 @@
     align-items: center;
     gap: 6px;
     transition: all var(--transition-fast);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 
     &:hover {
       background-color: var(--btn-create-hover);
+      transform: translateY(-0.5px);
     }
   }
 
@@ -98,27 +116,42 @@
 }
 
 .metricsGrid {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 12px;
 }
 
 .metricCard {
-  background-color: var(--bg-surface);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, transparent 100%), var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   padding: 18px 20px;
   display: flex;
   flex-direction: column;
   transition: all var(--transition-fast);
+  will-change: transform, opacity, filter;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 20px;
+    right: 20px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  }
 
   &:hover {
     border-color: var(--border-medium);
     background-color: var(--bg-surface-elevated);
+    transform: translateY(-1px);
   }
 
   .metricLabel {
-    font-size: 0.74rem;
+    font-size: 0.73rem;
     font-weight: 500;
     color: var(--text-muted);
     text-transform: uppercase;
@@ -127,7 +160,7 @@
   }
 
   .metricValue {
-    font-size: 1.8rem;
+    font-size: 1.85rem;
     font-weight: 600;
     letter-spacing: -0.03em;
     line-height: 1;
@@ -159,16 +192,20 @@
       height: 100%;
       background: linear-gradient(90deg, #5e6ad2 0%, #10b981 100%);
       border-radius: 9999px;
-      transition: width 0.3s ease;
+      transition: width 0.4s ease-out;
     }
   }
 }
 
 .tasksSection {
+  position: relative;
+  z-index: 1;
   background-color: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  will-change: transform, opacity, filter;
 }
 
 .sectionHeader {
@@ -177,6 +214,7 @@
   justify-content: space-between;
   padding: 8px 14px;
   border-bottom: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.01);
   flex-wrap: wrap;
   gap: 10px;
 
@@ -238,7 +276,7 @@
   flex-direction: column;
 
   .emptyState {
-    padding: 48px 20px;
+    padding: 56px 20px;
     text-align: center;
     color: var(--text-muted);
     font-size: 0.85rem;
@@ -248,7 +286,7 @@
     gap: 8px;
 
     .emptyIcon {
-      opacity: 0.4;
+      opacity: 0.35;
     }
   }
 }
@@ -260,6 +298,7 @@
   padding: 10px 16px;
   border-bottom: 1px solid var(--border-subtle);
   transition: background-color var(--transition-fast);
+  will-change: transform, opacity, filter;
 
   &:last-child {
     border-bottom: none;
@@ -325,7 +364,7 @@
     font-family: var(--font-geist-mono, monospace), serif;
     font-size: 0.72rem;
     color: var(--text-muted);
-    width: 50px;
+    width: 52px;
     flex-shrink: 0;
   }
 
@@ -388,12 +427,14 @@
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   z-index: 99;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 16px;
+  will-change: opacity, backdrop-filter;
 }
 
 .modalCard {
@@ -402,8 +443,20 @@
   background: var(--bg-surface);
   border: 1px solid var(--border-medium);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
   overflow: hidden;
+  will-change: transform, opacity, filter;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  }
 }
 
 .modalHeader {
