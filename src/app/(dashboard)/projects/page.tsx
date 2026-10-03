@@ -8,12 +8,10 @@ import {
   ArrowUpRight, 
   CheckCircle2, 
   Clock, 
-  Circle, 
   Users, 
   X, 
   Loader2,
-  Layers,
-  Sparkles
+  Layers
 } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';

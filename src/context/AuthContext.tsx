@@ -1,12 +1,16 @@
 'use client';
 
-import React, { createContext, useContext, useMemo, useSyncExternalStore } from 'react';
+import React, { createContext, useContext, useMemo, useCallback, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
 import { User } from '@/types';
 import { INITIAL_USERS } from '@/services/mockData';
 import { createPersistentStore } from '@/utils/persistentStore';
 import { simulateErrorStore, usersStore, ApiError } from '@/context/TaskContext';
 import { useToast } from '@/context/ToastContext';
+
+/* -------------------------------------------------------------------------- */
+/*  Persistent Auth Store (Hydration-Safe via useSyncExternalStore)           */
+/* -------------------------------------------------------------------------- */
 
 const isUser = (value: unknown): value is User | null => {
   if (value === null) return true;
@@ -15,6 +19,7 @@ const isUser = (value: unknown): value is User | null => {
   return typeof u.id === 'string' && typeof u.name === 'string' && typeof u.email === 'string';
 };
 
+/** Default to the first team user (Saurabh Thapliyal) for an immediate seamless experience. */
 export const authUserStore = createPersistentStore<User | null>(
   'axionix_auth_user',
   INITIAL_USERS[0],
@@ -58,13 +63,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     usersStore.getServer
   );
 
-  const login = async (email: string, _password?: string): Promise<User> => {
+  const login = useCallback(async (email: string, password?: string): Promise<User> => {
     // Simulated network delay
     await new Promise((resolve) => setTimeout(resolve, AUTH_LATENCY_MS));
 
     // Honor simulated failure mode
     if (simulateErrorStore.get()) {
       throw new ApiError('Authentication service unreachable (simulated error). Turn off Mock Error in the header to proceed.');
+    }
+
+    if (password && password.length < 4) {
+      throw new ApiError('Password must be at least 4 characters long.');
     }
 
     const trimmedEmail = email.trim().toLowerCase();
@@ -79,9 +88,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     authUserStore.set(matchedUser);
     return matchedUser;
-  };
+  }, []);
 
-  const register = async (input: RegisterInput): Promise<User> => {
+  const register = useCallback(async (input: RegisterInput): Promise<User> => {
     await new Promise((resolve) => setTimeout(resolve, AUTH_LATENCY_MS));
 
     if (simulateErrorStore.get()) {
@@ -112,9 +121,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     authUserStore.set(newUser);
 
     return newUser;
-  };
+  }, []);
 
-  const logout = async (): Promise<void> => {
+  const logout = useCallback(async (): Promise<void> => {
     await new Promise((resolve) => setTimeout(resolve, 150));
     authUserStore.set(null);
     toast({
@@ -123,9 +132,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       description: 'You have been signed out of Axionix.',
     });
     router.push('/login');
-  };
+  }, [router, toast]);
 
-  const switchUser = async (userId: string): Promise<User> => {
+  const switchUser = useCallback(async (userId: string): Promise<User> => {
     const currentUsers = usersStore.get();
     const target = currentUsers.find((u) => u.id === userId);
     if (!target) {
@@ -138,7 +147,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       description: `Active as ${target.name} (${target.role || 'Member'}).`,
     });
     return target;
-  };
+  }, [toast]);
 
   const value = useMemo<AuthContextType>(
     () => ({
@@ -150,7 +159,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       logout,
       switchUser,
     }),
-    [user, availableUsers]
+    [user, availableUsers, login, register, logout, switchUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

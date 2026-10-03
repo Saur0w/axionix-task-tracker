@@ -22,17 +22,19 @@ import { useSearch } from '@/context/SearchContext';
 import { useToast } from '@/context/ToastContext';
 import { openCreateTaskModal } from '@/components/features/tasks/CreateTaskModal/events';
 import { formatTaskKey, getDueInfo, getInitials } from '@/utils/format';
-import { TaskStatus } from '@/types';
+import { TaskStatus, TaskFilters } from '@/types';
 import styles from './style.module.scss';
 
 gsap.registerPlugin(useGSAP);
+
+type ActiveStatusFilter = NonNullable<TaskFilters['status']>;
 
 export default function DashboardPage() {
   const { tasks, projects, users, updateTaskStatus, deleteTask } = useTasks();
   const { query, setQuery } = useSearch();
   const { toast } = useToast();
   
-  const [activeFilter, setActiveFilter] = useState<'ALL' | TaskStatus>('ALL');
+  const [activeFilter, setActiveFilter] = useState<ActiveStatusFilter>('ALL');
   const [shouldCrash, setShouldCrash] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -54,11 +56,16 @@ export default function DashboardPage() {
     return { total, done, inProgress, todo, rate };
   }, [tasks]);
 
+  const currentFilters: TaskFilters = useMemo(() => ({
+    search: query,
+    status: activeFilter,
+  }), [query, activeFilter]);
+
   const filteredTasks = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
+    const normalizedQuery = (currentFilters.search || '').trim().toLowerCase();
 
     return tasks.filter((task) => {
-      if (activeFilter !== 'ALL' && task.status !== activeFilter) {
+      if (currentFilters.status && currentFilters.status !== 'ALL' && task.status !== currentFilters.status) {
         return false;
       }
 
@@ -81,7 +88,7 @@ export default function DashboardPage() {
 
       return true;
     });
-  }, [tasks, activeFilter, query, projects, users]);
+  }, [tasks, currentFilters, projects, users]);
 
   useGSAP(() => {
     const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
