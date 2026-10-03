@@ -25,6 +25,8 @@ import { formatTaskKey, getDueInfo, getInitials } from '@/utils/format';
 import { TaskStatus } from '@/types';
 import styles from './style.module.scss';
 
+gsap.registerPlugin(useGSAP);
+
 export default function DashboardPage() {
   const { tasks, projects, users, updateTaskStatus, deleteTask } = useTasks();
   const { query, setQuery } = useSearch();
@@ -356,7 +358,6 @@ export default function DashboardPage() {
 
               return (
                 <div key={task.id} className={styles.taskRow}>
-                  {/* Status Toggle Button */}
                   <button
                     type="button"
                     onClick={(e) => handleToggleStatus(e, task.id, task.status)}

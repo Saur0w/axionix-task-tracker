@@ -21,7 +21,7 @@ import { useTasks } from '@/context/TaskContext';
 import { useToast } from '@/context/ToastContext';
 import { openCreateTaskModal } from '@/components/features/tasks/CreateTaskModal/events';
 import { formatTaskKey, getDueInfo, getInitials } from '@/utils/format';
-import { Task, TaskStatus } from '@/types';
+import { TaskStatus } from '@/types';
 import styles from './style.module.scss';
 
 const COLUMNS: { id: TaskStatus; label: string; icon: typeof Circle; className: string }[] = [

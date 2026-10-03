@@ -19,7 +19,7 @@ The core architecture, component logic, data models, and features were designed 
   - Initial setup of SCSS styles, glassmorphism tokens, and responsive layout foundations.
   - GSAP timeline setup for status digit entrance reveals.
 
-### 2. Claude Opus 5.5
+### 2. Claude Opus 5.5 (Antigravity IDE)
 - **Scope**: Responsive design, code refactoring, and quality review.
 - **Contributions**:
   - Refining mobile responsiveness across the sidebar, header, and dashboard filter tabs.
