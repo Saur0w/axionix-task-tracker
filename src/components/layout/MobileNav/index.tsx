@@ -20,6 +20,8 @@ import {
   Moon
 } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
+import { useAuth } from '@/context/AuthContext';
+import { getInitials } from '@/utils/format';
 import AxionixLogo from '@/components/ui/Logo';
 import styles from './style.module.scss';
 
@@ -36,11 +38,15 @@ interface MobileNavProps {
 export default function MobileNav({
   isOpen,
   onClose,
-  user = { name: 'Saurabh Thapliyal', role: 'Frontend Developer' },
+  user,
   onLogout,
 }: MobileNavProps) {
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
+  const { user: authUser, logout: authLogout } = useAuth();
+
+  const currentUser = user || authUser || { name: 'Saurabh Thapliyal', role: 'Frontend Developer' };
+  const handleLogout = onLogout || (() => authLogout());
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -197,10 +203,10 @@ export default function MobileNav({
 
         <div className={styles.userFooter}>
           <div className={styles.userInfo}>
-            <div className={styles.avatar}>ST</div>
+            <div className={styles.avatar}>{getInitials(currentUser.name)}</div>
             <div className={styles.userText}>
-              <span className={styles.userName}>{user.name}</span>
-              <span className={styles.userRole}>{user.role}</span>
+              <span className={styles.userName}>{currentUser.name}</span>
+              <span className={styles.userRole}>{currentUser.role}</span>
             </div>
           </div>
 
@@ -208,10 +214,11 @@ export default function MobileNav({
             type="button"
             onClick={() => {
               onClose();
-              if (onLogout) onLogout();
+              handleLogout();
             }}
             className={styles.logoutButton}
             aria-label="Sign out"
+            title="Sign out"
           >
             <LogOut size={16} />
           </button>

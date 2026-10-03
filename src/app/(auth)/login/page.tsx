@@ -12,8 +12,7 @@ import {
   Loader2, 
   AlertCircle, 
   AlertTriangle,
-  CheckCircle2,
-  Github
+  CheckCircle2
 } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';

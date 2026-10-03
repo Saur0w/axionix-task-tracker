@@ -18,11 +18,14 @@ import {
   Palette,
   Settings,
   LogOut,
-  HelpCircle
+  HelpCircle,
+  Check
 } from 'lucide-react';
 import AxionixLogo from '@/components/ui/Logo';
 import { useTasks } from '@/context/TaskContext';
+import { useAuth } from '@/context/AuthContext';
 import { openCreateTaskModal } from '@/components/features/tasks/CreateTaskModal/events';
+import { getInitials } from '@/utils/format';
 import styles from './style.module.scss';
 
 interface SidebarProps {
@@ -36,15 +39,20 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ 
-  user = { name: 'Saurabh Thapliyal', role: 'Frontend Developer' }, 
+  user, 
   onLogout,
   onOpenSearch,
   onCreateIssue
 }: SidebarProps) {
   const pathname = usePathname();
   const { projects } = useTasks();
+  const { user: authUser, logout: authLogout, switchUser, availableUsers } = useAuth();
   const [workspaceOpen, setWorkspaceOpen] = useState(true);
   const [favoritesOpen, setFavoritesOpen] = useState(true);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  const currentUser = user || authUser || { name: 'Saurabh Thapliyal', role: 'Frontend Developer', id: 'user-1' };
+  const handleLogout = onLogout || (() => authLogout());
 
   return (
     <aside className={styles.sidebar} aria-label="Sidebar Navigation">
@@ -204,10 +212,16 @@ export default function Sidebar({
 
       {/* 3. Ultra-Clean Footer */}
       <div className={styles.sidebarFooter}>
-        <div className={styles.userProfile}>
-          <div className={styles.avatar}>ST</div>
+        <div 
+          className={styles.userProfile} 
+          onClick={() => setUserMenuOpen(!userMenuOpen)}
+          title="Account options & profile switcher"
+          role="button"
+          tabIndex={0}
+        >
+          <div className={styles.avatar}>{getInitials(currentUser.name)}</div>
           <div className={styles.userMeta}>
-            <span className={styles.userName}>{user.name}</span>
+            <span className={styles.userName}>{currentUser.name}</span>
           </div>
         </div>
 
@@ -232,7 +246,7 @@ export default function Sidebar({
 
           <button
             type="button"
-            onClick={onLogout}
+            onClick={handleLogout}
             className={styles.footerIconBtn}
             title="Sign out"
             aria-label="Sign out"
@@ -240,6 +254,55 @@ export default function Sidebar({
             <LogOut size={13} strokeWidth={1.5} />
           </button>
         </div>
+
+        {/* Account popover & profile switcher */}
+        {userMenuOpen && (
+          <div className={styles.userMenuPopover}>
+            <div className={styles.popoverHeader}>
+              <span className={styles.popoverName}>{currentUser.name}</span>
+              <span className={styles.popoverEmail}>{currentUser.email || 'sthap@axionix.dev'}</span>
+              <span className={styles.popoverRole}>{currentUser.role || 'Member'}</span>
+            </div>
+
+            <div className={styles.popoverDivider} />
+
+            <div className={styles.popoverSectionTitle}>Switch Profile</div>
+            <div className={styles.switchList}>
+              {availableUsers.map((u) => (
+                <button
+                  key={u.id}
+                  type="button"
+                  onClick={() => {
+                    switchUser(u.id);
+                    setUserMenuOpen(false);
+                  }}
+                  className={`${styles.switchItem} ${currentUser.id === u.id ? styles.activeSwitchItem : ''}`}
+                >
+                  <span className={styles.switchAvatar}>{getInitials(u.name)}</span>
+                  <div className={styles.switchInfo}>
+                    <span className={styles.switchName}>{u.name}</span>
+                    <span className={styles.switchRole}>{u.role}</span>
+                  </div>
+                  {currentUser.id === u.id && <Check size={12} className={styles.checkIcon} />}
+                </button>
+              ))}
+            </div>
+
+            <div className={styles.popoverDivider} />
+
+            <button
+              type="button"
+              onClick={() => {
+                setUserMenuOpen(false);
+                handleLogout();
+              }}
+              className={styles.popoverSignOutBtn}
+            >
+              <LogOut size={12} />
+              <span>Sign out</span>
+            </button>
+          </div>
+        )}
       </div>
     </aside>
   );

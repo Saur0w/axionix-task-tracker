@@ -247,6 +247,8 @@
   padding: 0 10px;
   background-color: var(--bg-sidebar);
 
+  position: relative;
+
   .userProfile {
     display: flex;
     align-items: center;
@@ -316,5 +318,162 @@
         background-color: var(--bg-hover);
       }
     }
+  }
+}
+
+.userMenuPopover {
+  position: absolute;
+  bottom: 46px;
+  left: 10px;
+  width: 220px;
+  background: var(--bg-surface-elevated, var(--bg-surface));
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  padding: 8px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  animation: popoverFade 0.15s ease-out;
+
+  .popoverHeader {
+    display: flex;
+    flex-direction: column;
+    padding: 4px 6px;
+
+    .popoverName {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .popoverEmail {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+    }
+
+    .popoverRole {
+      font-size: 0.65rem;
+      color: var(--primary);
+      margin-top: 2px;
+    }
+  }
+
+  .popoverDivider {
+    height: 1px;
+    background: var(--border-subtle);
+    margin: 2px 0;
+  }
+
+  .popoverSectionTitle {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    padding: 2px 6px;
+  }
+
+  .switchList {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .switchItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px;
+    border-radius: var(--radius-xs);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    transition: background-color var(--transition-fast);
+
+    &:hover {
+      background: var(--bg-hover);
+    }
+
+    &.activeSwitchItem {
+      background: var(--bg-active-nav);
+    }
+
+    .switchAvatar {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--bg-hover-strong);
+      border: 1px solid var(--border-subtle);
+      font-size: 0.6rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .switchInfo {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      overflow: hidden;
+
+      .switchName {
+        font-size: 0.74rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .switchRole {
+        font-size: 0.65rem;
+        color: var(--text-muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+
+    .checkIcon {
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+  }
+
+  .popoverSignOutBtn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px;
+    border-radius: var(--radius-xs);
+    background: transparent;
+    border: none;
+    color: var(--danger);
+    font-size: 0.74rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+
+    &:hover {
+      background: var(--danger-bg);
+    }
+  }
+}
+
+@keyframes popoverFade {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

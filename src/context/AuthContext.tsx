@@ -8,18 +8,13 @@ import { createPersistentStore } from '@/utils/persistentStore';
 import { simulateErrorStore, ApiError } from '@/context/TaskContext';
 import { useToast } from '@/context/ToastContext';
 
-/* -------------------------------------------------------------------------- */
-/*  Persistent Auth Store (Hydration-Safe via useSyncExternalStore)           */
-/* -------------------------------------------------------------------------- */
-
 const isUser = (value: unknown): value is User | null => {
   if (value === null) return true;
-  if (typeof value !== 'object' || value === null) return false;
+  if (typeof value !== 'object') return false;
   const u = value as Partial<User>;
   return typeof u.id === 'string' && typeof u.name === 'string' && typeof u.email === 'string';
 };
 
-/** Default to the first team user (Saurabh Thapliyal) for an immediate seamless experience. */
 export const authUserStore = createPersistentStore<User | null>(
   'axionix_auth_user',
   INITIAL_USERS[0],
@@ -53,7 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Simulated network delay
     await new Promise((resolve) => setTimeout(resolve, AUTH_LATENCY_MS));
 
-    // Assignment Req #3: Honor simulated failure mode
+    // simulated failure mode
     if (simulateErrorStore.get()) {
       throw new ApiError('Authentication service unreachable (simulated error). Turn off Mock Error in the header to proceed.');
     }

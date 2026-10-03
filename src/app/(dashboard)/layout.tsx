@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/layout/Sidebar';
 import Header from '@/components/layout/Header';
 import MobileNav from '@/components/layout/MobileNav';
 import CreateTaskModal from '@/components/features/tasks/CreateTaskModal';
 import { SearchProvider } from '@/context/SearchContext';
+import { useAuth } from '@/context/AuthContext';
 import styles from './layout.module.scss';
 
 export default function DashboardLayout({
@@ -13,7 +15,19 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
+  const { user } = useAuth();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
+  useEffect(() => {
+    if (user === null) {
+      router.push('/login');
+    }
+  }, [user, router]);
+
+  if (user === null) {
+    return null;
+  }
 
   return (
     <SearchProvider>
