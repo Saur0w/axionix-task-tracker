@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { 
   CheckCircle2, 
@@ -8,24 +8,30 @@ import {
   Clock, 
   Plus, 
   FolderKanban, 
-  X, 
   Flame, 
   ArrowUpRight, 
-  Sparkles 
+  Sparkles,
+  Trash2,
+  AlertCircle,
+  Search,
+  X
 } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { useTasks } from '@/context/TaskContext';
-import { TaskStatus, TaskPriority } from '@/types';
+import { useSearch } from '@/context/SearchContext';
+import { useToast } from '@/context/ToastContext';
+import { openCreateTaskModal } from '@/components/features/tasks/CreateTaskModal/events';
+import { formatTaskKey, getDueInfo, getInitials } from '@/utils/format';
+import { TaskStatus } from '@/types';
 import styles from './style.module.scss';
 
 export default function DashboardPage() {
-  const { tasks, projects, updateTaskStatus, createTask } = useTasks();
+  const { tasks, projects, users, updateTaskStatus, deleteTask } = useTasks();
+  const { query, setQuery } = useSearch();
+  const { toast } = useToast();
+  
   const [activeFilter, setActiveFilter] = useState<'ALL' | TaskStatus>('ALL');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newTitle, setNewTitle] = useState('');
-  const [newProjectId, setNewProjectId] = useState(projects[0]?.id || 'proj-1');
-  const [newPriority, setNewPriority] = useState<TaskPriority>('MEDIUM');
   const [shouldCrash, setShouldCrash] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -33,30 +39,12 @@ export default function DashboardPage() {
   const metricsRef = useRef<HTMLElement>(null);
   const tasksSectionRef = useRef<HTMLElement>(null);
   const taskListRef = useRef<HTMLDivElement>(null);
-  const modalOverlayRef = useRef<HTMLDivElement>(null);
-  const modalCardRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleOpenCreate = () => setIsModalOpen(true);
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const activeTag = (document.activeElement?.tagName || '').toLowerCase();
-      if (e.key.toLowerCase() === 'c' && !isModalOpen && activeTag !== 'input' && activeTag !== 'textarea') {
-        setIsModalOpen(true);
-      }
-    };
-
-    window.addEventListener('axionix_create_issue', handleOpenCreate);
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('axionix_create_issue', handleOpenCreate);
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isModalOpen]);
 
   if (shouldCrash) {
     throw new Error('Simulated Crash: Failed to load dashboard telemetry!');
   }
 
+  // Calculate live statistics across all workspace tasks
   const stats = useMemo(() => {
     const total = tasks.length;
     const done = tasks.filter((t) => t.status === 'DONE').length;
@@ -66,11 +54,39 @@ export default function DashboardPage() {
     return { total, done, inProgress, todo, rate };
   }, [tasks]);
 
+  // Combined status tab filter and live search query filter
   const filteredTasks = useMemo(() => {
-    if (activeFilter === 'ALL') return tasks;
-    return tasks.filter((t) => t.status === activeFilter);
-  }, [tasks, activeFilter]);
+    const normalizedQuery = query.trim().toLowerCase();
 
+    return tasks.filter((task) => {
+      // 1. Status Filter
+      if (activeFilter !== 'ALL' && task.status !== activeFilter) {
+        return false;
+      }
+
+      // 2. Global Search Query Filter
+      if (normalizedQuery) {
+        const key = formatTaskKey(task.id).toLowerCase();
+        const title = task.title.toLowerCase();
+        const desc = (task.description || '').toLowerCase();
+        const project = projects.find((p) => p.id === task.projectId)?.name.toLowerCase() || '';
+        const assignee = users.find((u) => u.id === task.assigneeId)?.name.toLowerCase() || '';
+
+        const matches = 
+          key.includes(normalizedQuery) ||
+          title.includes(normalizedQuery) ||
+          desc.includes(normalizedQuery) ||
+          project.includes(normalizedQuery) ||
+          assignee.includes(normalizedQuery);
+
+        if (!matches) return false;
+      }
+
+      return true;
+    });
+  }, [tasks, activeFilter, query, projects, users]);
+
+  // Entrance GSAP animation
   useGSAP(() => {
     const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (isReduced) return;
@@ -121,6 +137,7 @@ export default function DashboardPage() {
     }
   }, { scope: containerRef });
 
+  // Staggered reveal for rows on tab change (without flickering on task state updates)
   useGSAP(() => {
     const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (isReduced || !taskListRef.current) return;
@@ -129,77 +146,71 @@ export default function DashboardPage() {
     if (rows.length > 0) {
       gsap.fromTo(
         rows,
-        { opacity: 0, y: 8, filter: 'blur(6px)' },
+        { opacity: 0, y: 6, filter: 'blur(4px)' },
         {
           opacity: 1,
           y: 0,
           filter: 'blur(0px)',
-          duration: 0.35,
-          stagger: 0.035,
+          duration: 0.3,
+          stagger: 0.03,
           ease: 'power2.out',
           clearProps: 'filter',
         }
       );
     }
-  }, { dependencies: [activeFilter, tasks.length], scope: containerRef });
+  }, { dependencies: [activeFilter], scope: containerRef });
 
-  useGSAP(() => {
-    if (!isModalOpen) return;
-    const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (isReduced) return;
-
-    if (modalOverlayRef.current && modalCardRef.current) {
-      gsap.fromTo(
-        modalOverlayRef.current,
-        { opacity: 0 },
-        { opacity: 1, duration: 0.25, ease: 'power2.out' }
-      );
-      gsap.fromTo(
-        modalCardRef.current,
-        { opacity: 0, y: 20, scale: 0.95, filter: 'blur(12px)' },
-        {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          filter: 'blur(0px)',
-          duration: 0.35,
-          ease: 'back.out(1.2)',
-          clearProps: 'filter',
-        }
-      );
-    }
-  }, { dependencies: [isModalOpen], scope: containerRef });
-
-  const handleToggleStatus = (e: React.MouseEvent<HTMLButtonElement>, taskId: string, currentStatus: TaskStatus) => {
-    const nextStatus: Record<TaskStatus, TaskStatus> = {
+  // Interactive status toggling with animation and toast error reporting
+  const handleToggleStatus = async (e: React.MouseEvent<HTMLButtonElement>, taskId: string, currentStatus: TaskStatus) => {
+    e.stopPropagation();
+    const nextStatusMap: Record<TaskStatus, TaskStatus> = {
       TODO: 'IN_PROGRESS',
       IN_PROGRESS: 'DONE',
       DONE: 'TODO',
     };
+    const targetStatus = nextStatusMap[currentStatus];
 
-    gsap.fromTo(e.currentTarget, { rotate: -35, scale: 0.8 }, { rotate: 0, scale: 1, duration: 0.35, ease: 'back.out(2)' });
-    updateTaskStatus(taskId, nextStatus[currentStatus]);
+    gsap.fromTo(
+      e.currentTarget,
+      { rotate: -25, scale: 0.82 },
+      { rotate: 0, scale: 1, duration: 0.35, ease: 'back.out(2)' }
+    );
+
+    try {
+      await updateTaskStatus(taskId, targetStatus);
+    } catch (err) {
+      toast({
+        variant: 'error',
+        title: 'Status update failed',
+        description: err instanceof Error ? err.message : 'Could not change status',
+      });
+    }
   };
 
-  const handleCreateTask = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTitle.trim()) return;
-
-    await createTask({
-      title: newTitle.trim(),
-      projectId: newProjectId,
-      priority: newPriority,
-      status: 'TODO',
-    });
-
-    setNewTitle('');
-    setIsModalOpen(false);
+  // Quick deletion with toast feedback
+  const handleDeleteTask = async (e: React.MouseEvent, taskId: string, taskTitle: string) => {
+    e.stopPropagation();
+    try {
+      await deleteTask(taskId);
+      toast({
+        variant: 'success',
+        title: 'Issue deleted',
+        description: `"${taskTitle.slice(0, 32)}${taskTitle.length > 32 ? '…' : ''}" was removed.`,
+      });
+    } catch (err) {
+      toast({
+        variant: 'error',
+        title: 'Delete failed',
+        description: err instanceof Error ? err.message : 'Could not delete issue',
+      });
+    }
   };
 
   return (
     <div className={styles.dashboard} ref={containerRef}>
       <div className={styles.ambientGlow} />
 
+      {/* Hero Header with Status & Primary Actions */}
       <section className={styles.heroRow} ref={heroRef}>
         <div className={styles.heroText}>
           <div className={styles.pulseTag}>
@@ -215,10 +226,11 @@ export default function DashboardPage() {
         <div className={styles.heroActions}>
           <button
             type="button"
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => openCreateTaskModal()}
             className={styles.primaryBtn}
+            title="Create new issue (C)"
           >
-            <Plus size={15} />
+            <Plus size={15} strokeWidth={2} />
             <span>Create Issue</span>
           </button>
 
@@ -234,6 +246,7 @@ export default function DashboardPage() {
         </div>
       </section>
 
+      {/* Metrics Row */}
       <section className={styles.metricsGrid} ref={metricsRef}>
         <div className={styles.metricCard}>
           <span className={styles.metricLabel}>Total Issues</span>
@@ -262,6 +275,7 @@ export default function DashboardPage() {
         </div>
       </section>
 
+      {/* Tasks Section with Filter Tabs & Search Sync */}
       <section className={styles.tasksSection} ref={tasksSectionRef}>
         <div className={styles.sectionHeader}>
           <div className={styles.filterTabs}>
@@ -296,43 +310,91 @@ export default function DashboardPage() {
           </div>
 
           <Link href="/projects" className={styles.viewProjectsLink}>
-            <FolderKanban size={13} />
+            <FolderKanban size={13} strokeWidth={1.5} />
             <span>Manage Projects</span>
-            <ArrowUpRight size={13} />
+            <ArrowUpRight size={13} strokeWidth={1.5} />
           </Link>
         </div>
 
+        {/* Search Active Notification Bar */}
+        {query.trim() && (
+          <div className={styles.searchNotice}>
+            <span>
+              Showing {filteredTasks.length} {filteredTasks.length === 1 ? 'match' : 'matches'} for{' '}
+              <strong>&ldquo;{query}&rdquo;</strong>
+            </span>
+            <button
+              type="button"
+              onClick={() => setQuery('')}
+              className={styles.clearSearchLink}
+            >
+              Clear search
+            </button>
+          </div>
+        )}
+
+        {/* Task List */}
         <div className={styles.taskList} ref={taskListRef}>
           {filteredTasks.length === 0 ? (
             <div className={styles.emptyState}>
               <Sparkles size={24} className={styles.emptyIcon} />
-              <p>No issues found in this category.</p>
+              <p>
+                {query.trim()
+                  ? `No issues found matching "${query}".`
+                  : 'No issues found in this category.'}
+              </p>
+              {query.trim() ? (
+                <button
+                  type="button"
+                  onClick={() => setQuery('')}
+                  className={styles.emptyActionBtn}
+                >
+                  <X size={13} />
+                  <span>Reset Search</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => openCreateTaskModal({ status: activeFilter === 'ALL' ? 'TODO' : activeFilter })}
+                  className={styles.emptyActionBtn}
+                >
+                  <Plus size={13} />
+                  <span>Create an Issue</span>
+                </button>
+              )}
             </div>
           ) : (
             filteredTasks.map((task) => {
               const project = projects.find((p) => p.id === task.projectId);
+              const assignee = users.find((u) => u.id === task.assigneeId);
+              const dueInfo = getDueInfo(task.dueDate, task.status === 'DONE');
 
               return (
                 <div key={task.id} className={styles.taskRow}>
+                  {/* Status Toggle Button */}
                   <button
                     type="button"
                     onClick={(e) => handleToggleStatus(e, task.id, task.status)}
                     className={`${styles.statusToggle} ${styles[task.status.toLowerCase()]}`}
                     title={`Status: ${task.status} (Click to toggle)`}
+                    aria-label={`Mark status from ${task.status}`}
                   >
-                    {task.status === 'DONE' && <CheckCircle2 size={15} />}
-                    {task.status === 'IN_PROGRESS' && <Clock size={15} />}
-                    {task.status === 'TODO' && <Circle size={15} />}
+                    {task.status === 'DONE' && <CheckCircle2 size={15} strokeWidth={2} />}
+                    {task.status === 'IN_PROGRESS' && <Clock size={15} strokeWidth={2} />}
+                    {task.status === 'TODO' && <Circle size={15} strokeWidth={2} />}
                   </button>
 
+                  {/* Priority Tag */}
                   <span className={`${styles.priorityTag} ${styles[task.priority.toLowerCase()]}`}>
                     {task.priority}
                   </span>
 
+                  {/* Monospace Task Key */}
                   <span className={styles.taskKey}>
-                    {task.id.replace('task-', 'AX-')}
+                    {formatTaskKey(task.id)}
                   </span>
 
+                  {/* Title & Description */}
                   <div className={styles.taskInfo}>
                     <span className={`${styles.taskTitle} ${task.status === 'DONE' ? styles.strike : ''}`}>
                       {task.title}
@@ -342,100 +404,46 @@ export default function DashboardPage() {
                     )}
                   </div>
 
+                  {/* Project Badge */}
                   <span className={styles.projectBadge}>
                     {project ? project.name : 'Platform'}
                   </span>
 
-                  <span className={styles.dueDate}>
-                    {task.dueDate || 'Today'}
+                  {/* Assignee Avatar */}
+                  <div 
+                    className={styles.assigneeAvatar}
+                    title={assignee ? `${assignee.name} (${assignee.role})` : 'Unassigned'}
+                  >
+                    {assignee ? getInitials(assignee.name) : '?'}
+                  </div>
+
+                  {/* Human-Friendly Due Date */}
+                  <span 
+                    className={`${styles.dueBadge} ${styles[dueInfo.tone]}`}
+                    title={dueInfo.title}
+                  >
+                    {dueInfo.tone === 'overdue' && <AlertCircle size={11} strokeWidth={2} />}
+                    {dueInfo.label}
                   </span>
+
+                  {/* Row Hover Quick Actions */}
+                  <div className={styles.rowActions}>
+                    <button
+                      type="button"
+                      onClick={(e) => handleDeleteTask(e, task.id, task.title)}
+                      className={styles.actionIconBtn}
+                      title="Delete issue"
+                      aria-label="Delete issue"
+                    >
+                      <Trash2 size={13} strokeWidth={1.5} />
+                    </button>
+                  </div>
                 </div>
               );
             })
           )}
         </div>
       </section>
-
-      {isModalOpen && (
-        <div 
-          className={styles.modalOverlay} 
-          ref={modalOverlayRef} 
-          onClick={() => setIsModalOpen(false)}
-        >
-          <div 
-            className={styles.modalCard} 
-            ref={modalCardRef} 
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className={styles.modalHeader}>
-              <h3 className={styles.modalTitle}>Create New Issue</h3>
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(false)}
-                className={styles.closeBtn}
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateTask} className={styles.modalForm}>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Issue Title</label>
-                <input
-                  type="text"
-                  autoFocus
-                  required
-                  placeholder="e.g. Implement OAuth2 refresh token rotation"
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  className={styles.input}
-                />
-              </div>
-
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label className={styles.label}>Project</label>
-                  <select
-                    value={newProjectId}
-                    onChange={(e) => setNewProjectId(e.target.value)}
-                    className={styles.select}
-                  >
-                    {projects.map((p) => (
-                      <option key={p.id} value={p.id}>{p.name}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label className={styles.label}>Priority</label>
-                  <select
-                    value={newPriority}
-                    onChange={(e) => setNewPriority(e.target.value as TaskPriority)}
-                    className={styles.select}
-                  >
-                    <option value="LOW">Low</option>
-                    <option value="MEDIUM">Medium</option>
-                    <option value="HIGH">High</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className={styles.modalActions}>
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className={styles.cancelBtn}
-                >
-                  Cancel
-                </button>
-                <button type="submit" className={styles.submitBtn}>
-                  Create Issue
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

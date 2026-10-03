@@ -21,6 +21,8 @@ import {
   HelpCircle
 } from 'lucide-react';
 import AxionixLogo from '@/components/ui/Logo';
+import { useTasks } from '@/context/TaskContext';
+import { openCreateTaskModal } from '@/components/features/tasks/CreateTaskModal/events';
 import styles from './style.module.scss';
 
 interface SidebarProps {
@@ -40,6 +42,7 @@ export default function Sidebar({
   onCreateIssue
 }: SidebarProps) {
   const pathname = usePathname();
+  const { projects } = useTasks();
   const [workspaceOpen, setWorkspaceOpen] = useState(true);
   const [favoritesOpen, setFavoritesOpen] = useState(true);
 
@@ -60,7 +63,9 @@ export default function Sidebar({
         <div className={styles.headerActions}>
           <button 
             type="button" 
-            onClick={onOpenSearch}
+            onClick={onOpenSearch || (() => {
+              window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true }));
+            })}
             className={styles.actionBtn}
             title="Search (⌘K)"
             aria-label="Search"
@@ -69,7 +74,7 @@ export default function Sidebar({
           </button>
           <button 
             type="button" 
-            onClick={onCreateIssue || (() => window.dispatchEvent(new CustomEvent('axionix_create_issue')))}
+            onClick={onCreateIssue || (() => openCreateTaskModal())}
             className={styles.actionBtn}
             title="New Issue (C)"
             aria-label="New Issue"
@@ -146,7 +151,7 @@ export default function Sidebar({
               >
                 <FolderKanban size={14} strokeWidth={1.5} className={styles.itemIcon} />
                 <span className={styles.itemLabel}>Projects</span>
-                <span className={styles.countBadge}>5</span>
+                <span className={styles.countBadge}>{projects.length}</span>
               </Link>
             </div>
           )}
