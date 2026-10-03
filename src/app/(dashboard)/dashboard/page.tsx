@@ -13,7 +13,6 @@ import {
   Sparkles,
   Trash2,
   AlertCircle,
-  Search,
   X
 } from 'lucide-react';
 import gsap from 'gsap';
@@ -44,7 +43,6 @@ export default function DashboardPage() {
     throw new Error('Simulated Crash: Failed to load dashboard telemetry!');
   }
 
-  // Calculate live statistics across all workspace tasks
   const stats = useMemo(() => {
     const total = tasks.length;
     const done = tasks.filter((t) => t.status === 'DONE').length;
@@ -54,17 +52,14 @@ export default function DashboardPage() {
     return { total, done, inProgress, todo, rate };
   }, [tasks]);
 
-  // Combined status tab filter and live search query filter
   const filteredTasks = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
 
     return tasks.filter((task) => {
-      // 1. Status Filter
       if (activeFilter !== 'ALL' && task.status !== activeFilter) {
         return false;
       }
 
-      // 2. Global Search Query Filter
       if (normalizedQuery) {
         const key = formatTaskKey(task.id).toLowerCase();
         const title = task.title.toLowerCase();
@@ -86,7 +81,6 @@ export default function DashboardPage() {
     });
   }, [tasks, activeFilter, query, projects, users]);
 
-  // Entrance GSAP animation
   useGSAP(() => {
     const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (isReduced) return;
@@ -137,7 +131,6 @@ export default function DashboardPage() {
     }
   }, { scope: containerRef });
 
-  // Staggered reveal for rows on tab change (without flickering on task state updates)
   useGSAP(() => {
     const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (isReduced || !taskListRef.current) return;
@@ -160,7 +153,6 @@ export default function DashboardPage() {
     }
   }, { dependencies: [activeFilter], scope: containerRef });
 
-  // Interactive status toggling with animation and toast error reporting
   const handleToggleStatus = async (e: React.MouseEvent<HTMLButtonElement>, taskId: string, currentStatus: TaskStatus) => {
     e.stopPropagation();
     const nextStatusMap: Record<TaskStatus, TaskStatus> = {
@@ -187,7 +179,6 @@ export default function DashboardPage() {
     }
   };
 
-  // Quick deletion with toast feedback
   const handleDeleteTask = async (e: React.MouseEvent, taskId: string, taskTitle: string) => {
     e.stopPropagation();
     try {
@@ -209,8 +200,6 @@ export default function DashboardPage() {
   return (
     <div className={styles.dashboard} ref={containerRef}>
       <div className={styles.ambientGlow} />
-
-      {/* Hero Header with Status & Primary Actions */}
       <section className={styles.heroRow} ref={heroRef}>
         <div className={styles.heroText}>
           <div className={styles.pulseTag}>
@@ -246,7 +235,6 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* Metrics Row */}
       <section className={styles.metricsGrid} ref={metricsRef}>
         <div className={styles.metricCard}>
           <span className={styles.metricLabel}>Total Issues</span>
@@ -275,7 +263,6 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* Tasks Section with Filter Tabs & Search Sync */}
       <section className={styles.tasksSection} ref={tasksSectionRef}>
         <div className={styles.sectionHeader}>
           <div className={styles.filterTabs}>
@@ -316,7 +303,6 @@ export default function DashboardPage() {
           </Link>
         </div>
 
-        {/* Search Active Notification Bar */}
         {query.trim() && (
           <div className={styles.searchNotice}>
             <span>
@@ -333,7 +319,6 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Task List */}
         <div className={styles.taskList} ref={taskListRef}>
           {filteredTasks.length === 0 ? (
             <div className={styles.emptyState}>
@@ -384,17 +369,13 @@ export default function DashboardPage() {
                     {task.status === 'TODO' && <Circle size={15} strokeWidth={2} />}
                   </button>
 
-                  {/* Priority Tag */}
                   <span className={`${styles.priorityTag} ${styles[task.priority.toLowerCase()]}`}>
                     {task.priority}
                   </span>
-
-                  {/* Monospace Task Key */}
                   <span className={styles.taskKey}>
                     {formatTaskKey(task.id)}
                   </span>
 
-                  {/* Title & Description */}
                   <div className={styles.taskInfo}>
                     <span className={`${styles.taskTitle} ${task.status === 'DONE' ? styles.strike : ''}`}>
                       {task.title}
@@ -404,12 +385,10 @@ export default function DashboardPage() {
                     )}
                   </div>
 
-                  {/* Project Badge */}
                   <span className={styles.projectBadge}>
                     {project ? project.name : 'Platform'}
                   </span>
 
-                  {/* Assignee Avatar */}
                   <div 
                     className={styles.assigneeAvatar}
                     title={assignee ? `${assignee.name} (${assignee.role})` : 'Unassigned'}
@@ -417,7 +396,6 @@ export default function DashboardPage() {
                     {assignee ? getInitials(assignee.name) : '?'}
                   </div>
 
-                  {/* Human-Friendly Due Date */}
                   <span 
                     className={`${styles.dueBadge} ${styles[dueInfo.tone]}`}
                     title={dueInfo.title}
@@ -426,7 +404,6 @@ export default function DashboardPage() {
                     {dueInfo.label}
                   </span>
 
-                  {/* Row Hover Quick Actions */}
                   <div className={styles.rowActions}>
                     <button
                       type="button"

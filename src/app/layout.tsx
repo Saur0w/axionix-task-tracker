@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { TaskProvider } from "@/context/TaskContext";
 import { ToastProvider } from "@/context/ToastContext";
+import { AuthProvider } from "@/context/AuthContext";
 import { themeInitScript } from "@/utils/themeScript";
 import "./globals.css";
 
@@ -42,7 +43,9 @@ export default function RootLayout({
         <ThemeProvider>
           <ToastProvider>
             <TaskProvider>
-              {children}
+              <AuthProvider>
+                {children}
+              </AuthProvider>
             </TaskProvider>
           </ToastProvider>
         </ThemeProvider>
