@@ -33,9 +33,6 @@ export const CORE_NAV_ITEMS: NavItemConfig[] = [
   },
 ];
 
-/**
- * Checks whether a navigation item is active given the current pathname and search parameters.
- */
 export function isNavItemActive(
   pathname: string,
   searchParams: URLSearchParams | null,
@@ -44,21 +41,18 @@ export function isNavItemActive(
   const [targetPath, targetQuery] = href.split('?');
 
   if (targetQuery) {
-    // Exact path + exact search param matching (e.g. /dashboard?view=my-issues)
     if (pathname !== targetPath) return false;
     const currentView = searchParams?.get('view');
     const targetParams = new URLSearchParams(targetQuery);
     return currentView === targetParams.get('view');
   }
 
-  // If this item is pure /dashboard, do not highlight if view=my-issues is active
   if (targetPath === '/dashboard') {
     if (pathname !== '/dashboard') return false;
     const currentView = searchParams?.get('view');
     return !currentView || currentView !== 'my-issues';
   }
 
-  // For /projects, highlight on /projects and all subroutes like /projects/[id]
   if (targetPath === '/projects') {
     return pathname === '/projects' || pathname.startsWith('/projects/');
   }

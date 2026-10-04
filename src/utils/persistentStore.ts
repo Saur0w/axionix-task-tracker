@@ -1,23 +1,12 @@
 type Listener = () => void;
 
 export interface PersistentStore<T> {
-  /** Current client value (cached, referentially stable between writes). */
   get: () => T;
-  /** Value used during SSR and hydration. Always the fallback. */
   getServer: () => T;
-  /** Write a new value (or updater) and notify subscribers synchronously. */
   set: (next: T | ((prev: T) => T)) => void;
-  /** Subscribe to changes, including writes from other browser tabs. */
   subscribe: (listener: Listener) => () => void;
 }
 
-/**
- * A tiny localStorage-backed store for `useSyncExternalStore`.
- *
- * - SSR and hydration always see `fallback`, so markup never mismatches.
- * - After hydration React re-renders with the persisted client value.
- * - Reads are cached, so `get()` returns the same reference until the next write.
- */
 export function createPersistentStore<T>(
   key: string,
   fallback: T,
@@ -40,7 +29,6 @@ export function createPersistentStore<T>(
         cache = isValid(parsed) ? parsed : fallback;
       }
     } catch {
-      // Legacy plain-string values (e.g. `dark` saved without JSON quotes).
       cache = raw !== null && isValid(raw) ? raw : fallback;
     }
     return cache as T;
@@ -54,7 +42,6 @@ export function createPersistentStore<T>(
     try {
       window.localStorage.setItem(key, JSON.stringify(value));
     } catch {
-      // Storage full or unavailable (private mode). Keep the in-memory value.
     }
     notify();
   };
@@ -62,7 +49,6 @@ export function createPersistentStore<T>(
   const subscribe: PersistentStore<T>['subscribe'] = (listener) => {
     listeners.add(listener);
 
-    // Keep multiple tabs in sync.
     const onStorage = (event: StorageEvent) => {
       if (event.key !== key) return;
       cache = undefined;

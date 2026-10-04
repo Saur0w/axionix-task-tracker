@@ -10,7 +10,6 @@ export interface ToastOptions {
   title: string;
   description?: string;
   variant?: ToastVariant;
-  /** Auto-dismiss delay in ms. Errors stay a little longer by default. */
   duration?: number;
 }
 
@@ -60,7 +59,6 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     [dismiss]
   );
 
-  // Clear pending timers on unmount.
   useEffect(() => {
     const pending = timers.current;
     return () => pending.forEach((timer) => clearTimeout(timer));

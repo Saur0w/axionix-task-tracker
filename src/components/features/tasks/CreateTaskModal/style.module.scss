@@ -1,4 +1,3 @@
-/* Native <dialog> with CSS entry/exit (works for Esc, backdrop click and buttons alike). */
 .dialog {
   width: min(620px, calc(100vw - 32px));
   max-height: calc(100dvh - 64px);
@@ -11,8 +10,6 @@
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
   overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-
-  /* Closed state (also the exit target) */
   opacity: 0;
   transform: translateY(10px) scale(0.98);
   filter: blur(8px);
@@ -44,7 +41,6 @@
     backdrop-filter: blur(6px);
   }
 
-  /* Subtle top highlight, Linear-style */
   &::after {
     content: '';
     position: absolute;
@@ -59,7 +55,6 @@
   }
 }
 
-/* Entry starting point */
 @starting-style {
   .dialog[open] {
     opacity: 0;
@@ -172,7 +167,6 @@
   color: var(--text-secondary);
 }
 
-/* Property pills (status, priority, assignee, project, due) */
 .properties {
   display: flex;
   flex-wrap: wrap;

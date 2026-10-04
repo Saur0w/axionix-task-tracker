@@ -25,7 +25,6 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const theme = useSyncExternalStore(themeStore.subscribe, themeStore.get, themeStore.getServer);
 
-  // Re-apply after React's dev Strict Mode remount resets <html> attributes. No-op in production.
   useLayoutEffect(() => {
     applyTheme(themeStore.get());
   }, []);

@@ -8,10 +8,6 @@ import { createPersistentStore } from '@/utils/persistentStore';
 import { simulateErrorStore, usersStore, ApiError } from '@/context/TaskContext';
 import { useToast } from '@/context/ToastContext';
 
-/* -------------------------------------------------------------------------- */
-/*  Persistent Auth Store (Hydration-Safe via useSyncExternalStore)           */
-/* -------------------------------------------------------------------------- */
-
 const isUser = (value: unknown): value is User | null => {
   if (value === null) return true;
   if (typeof value !== 'object') return false;
@@ -19,7 +15,6 @@ const isUser = (value: unknown): value is User | null => {
   return typeof u.id === 'string' && typeof u.name === 'string' && typeof u.email === 'string';
 };
 
-/** Default to the first team user (Saurabh Thapliyal) for an immediate seamless experience. */
 export const authUserStore = createPersistentStore<User | null>(
   'axionix_auth_user',
   INITIAL_USERS[0],
@@ -115,9 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       role: input.role?.trim() || 'Software Engineer',
     };
 
-    // Save to persistent user store
     usersStore.set((prev) => [...prev, newUser]);
-    // Set as active session
     authUserStore.set(newUser);
 
     return newUser;

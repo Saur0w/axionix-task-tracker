@@ -133,7 +133,6 @@ button, input, select, textarea {
   outline-offset: 2px;
 }
 
-/* Custom Sleek Scrollbar */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;

@@ -30,12 +30,12 @@ import { CORE_NAV_ITEMS, isNavItemActive } from '@/components/layout/navConfig';
 import styles from './style.module.scss';
 
 const PROJECT_COLORS = [
-  '#6366f1', // Indigo
-  '#10b981', // Emerald
-  '#f59e0b', // Amber
-  '#ec4899', // Pink
-  '#06b6d4', // Cyan
-  '#8b5cf6', // Violet
+  '#6366f1',
+  '#10b981',
+  '#f59e0b',
+  '#ec4899',
+  '#06b6d4',
+  '#8b5cf6',
 ];
 
 interface SidebarProps {
@@ -76,7 +76,6 @@ function SidebarContent({
   };
   const handleLogout = onLogout || (() => authLogout());
 
-  // Close menus on outside click or Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -103,7 +102,6 @@ function SidebarContent({
     };
   }, []);
 
-  // Calculate live count of open issues assigned to current user
   const myIssuesCount = tasks.filter(
     (t) => t.assigneeId === currentUser.id && t.status !== 'DONE'
   ).length;
@@ -144,7 +142,6 @@ function SidebarContent({
 
   return (
     <aside className={styles.sidebar} ref={sidebarRef} aria-label="Sidebar Navigation">
-      {/* 1. Workspace Header */}
       <div className={styles.workspaceHeader}>
         <button 
           type="button" 
@@ -186,7 +183,6 @@ function SidebarContent({
           </button>
         </div>
 
-        {/* Workspace Dropdown */}
         {workspaceMenuOpen && (
           <div className={styles.workspacePopover} role="menu">
             <div className={styles.popoverHeader}>
@@ -243,9 +239,7 @@ function SidebarContent({
         )}
       </div>
 
-      {/* 2. Scrollable Navigation */}
       <div className={styles.navScrollArea}>
-        {/* Core Primary Navigation */}
         <nav className={styles.navGroup} aria-label="Main Navigation">
           {CORE_NAV_ITEMS.map((item) => {
             const Icon = item.icon;
@@ -272,7 +266,6 @@ function SidebarContent({
           })}
         </nav>
 
-        {/* Real Dynamic Projects Section */}
         <div className={styles.navSection}>
           <button 
             type="button" 
@@ -320,7 +313,6 @@ function SidebarContent({
         </div>
       </div>
 
-      {/* 3. Footer */}
       <div className={styles.sidebarFooter}>
         <button 
           type="button"
@@ -377,7 +369,6 @@ function SidebarContent({
           </button>
         </div>
 
-        {/* Quick Settings Popover */}
         {settingsMenuOpen && (
           <div className={styles.settingsPopover} role="dialog" aria-label="Settings">
             <div className={styles.popoverHeader}>
@@ -416,7 +407,6 @@ function SidebarContent({
           </div>
         )}
 
-        {/* Account popover & profile switcher */}
         {userMenuOpen && (
           <div className={styles.userMenuPopover} role="dialog" aria-label="User Profiles">
             <div className={styles.popoverHeader}>
@@ -466,7 +456,6 @@ function SidebarContent({
         )}
       </div>
 
-      {/* 4. Keyboard Shortcuts & Help Modal */}
       {helpModalOpen && (
         <div 
           className={styles.helpModalBackdrop} 

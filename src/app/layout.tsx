@@ -28,7 +28,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    // suppressHydrationWarning: the inline script may change data-theme before React hydrates.
     <html
       lang="en"
       data-theme="dark"
@@ -36,7 +35,6 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        {/* Apply the saved theme before first paint to avoid a dark -> light flash. */}
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body>

@@ -30,13 +30,8 @@ export class ApiError extends Error {
   }
 }
 
-/* -------------------------------------------------------------------------- */
-/*  Mock API layer                                                            */
-/* -------------------------------------------------------------------------- */
-
 const LATENCY_MS = 300;
 
-/** Fake round-trip: waits a bit, then fails if Mock Error is switched on. */
 async function simulateRequest(): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, LATENCY_MS));
   if (simulateErrorStore.get()) {
@@ -44,7 +39,6 @@ async function simulateRequest(): Promise<void> {
   }
 }
 
-/** Sequential IDs (`task-7`) so keys read as AX-7 instead of a timestamp. */
 function nextTaskId(tasks: Task[]): string {
   const max = tasks.reduce((highest, task) => {
     const match = /^task-(\d{1,5})$/.exec(task.id);
@@ -90,7 +84,6 @@ async function createTask(input: CreateTaskInput): Promise<Task> {
   return newTask;
 }
 
-/** Optimistic update: UI changes instantly, rolls back if the request fails. */
 async function updateTask(taskId: string, updates: Partial<Task>): Promise<Task> {
   const original = tasksStore.get().find((t) => t.id === taskId);
   if (!original) throw new ApiError(`Task ${taskId} not found`);
@@ -111,7 +104,6 @@ async function updateTaskStatus(taskId: string, status: TaskStatus): Promise<voi
   await updateTask(taskId, { status });
 }
 
-/** Optimistic delete with rollback to the original position. */
 async function deleteTask(taskId: string): Promise<void> {
   const snapshot = tasksStore.get();
   const index = snapshot.findIndex((t) => t.id === taskId);
@@ -147,10 +139,6 @@ async function createProject(input: CreateProjectInput): Promise<Project> {
   return newProject;
 }
 
-/* -------------------------------------------------------------------------- */
-/*  React bindings                                                            */
-/* -------------------------------------------------------------------------- */
-
 interface TaskContextType {
   tasks: Task[];
   projects: Project[];
@@ -168,7 +156,6 @@ interface TaskContextType {
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
 
 export function TaskProvider({ children }: { children: React.ReactNode }) {
-  // Server + hydration render the seed data; the persisted data arrives right after.
   const tasks = useSyncExternalStore(tasksStore.subscribe, tasksStore.get, tasksStore.getServer);
   const projects = useSyncExternalStore(projectsStore.subscribe, projectsStore.get, projectsStore.getServer);
   const users = useSyncExternalStore(usersStore.subscribe, usersStore.get, usersStore.getServer);
@@ -201,7 +188,6 @@ export function useTasks() {
   return context;
 }
 
-/** Reactive read of the Mock Error flag (hydration-safe). */
 export function useSimulateError() {
   return useSyncExternalStore(simulateErrorStore.subscribe, simulateErrorStore.get, simulateErrorStore.getServer);
 }

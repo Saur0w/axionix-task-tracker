@@ -1,7 +1,6 @@
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const DAY_MS = 86_400_000;
 
-/** `task-7` -> `AX-7`. Falls back to the last 4 digits for legacy timestamp IDs. */
 export function formatTaskKey(id: string): string {
   const match = /^task-(\d+)$/.exec(id);
   if (match && match[1].length <= 5) return `AX-${Number(match[1])}`;
@@ -9,14 +8,12 @@ export function formatTaskKey(id: string): string {
   return `AX-${digits.slice(-4) || id.slice(-4)}`;
 }
 
-/** Parse `YYYY-MM-DD` as a local calendar date (avoids the UTC off-by-one shift). */
 export function parseLocalDate(value: string): Date | null {
   const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
   if (!match) return null;
   return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
 }
 
-/** `YYYY-MM-DD` for a local date, suitable for `<input type="date">`. */
 export function toDateInputValue(date: Date): string {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -32,7 +29,6 @@ export interface DueInfo {
   title: string;
 }
 
-/** Human-friendly due date: "Today", "Tomorrow", "Oct 5", flagged when overdue. */
 export function getDueInfo(dueDate: string, isDone: boolean, now: Date = new Date()): DueInfo {
   const due = parseLocalDate(dueDate);
   if (!due) return { label: 'No date', tone: 'muted', title: 'No due date' };
@@ -51,7 +47,6 @@ export function getDueInfo(dueDate: string, isDone: boolean, now: Date = new Dat
   return { label: short, tone: 'normal', title: `Due ${short}` };
 }
 
-/** "Saurabh Thapliyal" -> "ST", "Asta" -> "AS". */
 export function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return '?';

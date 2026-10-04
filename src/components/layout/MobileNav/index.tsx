@@ -121,7 +121,6 @@ function MobileNavContent({
         </div>
 
         <div className={styles.scrollArea}>
-          {/* Main Navigation */}
           <nav className={styles.navGroup}>
             {CORE_NAV_ITEMS.map((item) => {
               const Icon = item.icon;
@@ -151,7 +150,6 @@ function MobileNavContent({
 
           <div className={styles.sectionDivider} />
 
-          {/* Dynamic Projects */}
           <div className={styles.sectionHeader}>Projects</div>
           <nav className={styles.navGroup}>
             {projects.map((project, index) => {

@@ -24,7 +24,6 @@ const PRIORITY_OPTIONS: { value: TaskPriority; label: string }[] = [
 
 const TITLE_REQUIRED = 'Give the issue a title.';
 
-/** True when the keyboard event happened inside a text field. */
 function isTypingTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
   return target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName);
@@ -48,7 +47,6 @@ export default function CreateTaskModal() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Reset the form and open the dialog in the top layer.
   const open = useCallback(
     (defaults?: CreateTaskDefaults) => {
       const dialog = dialogRef.current;
@@ -57,7 +55,6 @@ export default function CreateTaskModal() {
       const nextWeek = new Date();
       nextWeek.setDate(nextWeek.getDate() + 7);
 
-      // Commit the fresh form before the dialog paints.
       flushSync(() => {
         setTitle('');
         setDescription('');
@@ -76,7 +73,6 @@ export default function CreateTaskModal() {
     [projects]
   );
 
-  // Light-dismiss: native `closedby` where supported, click-outside fallback elsewhere (Safari).
   useEffect(() => {
     dialogRef.current?.setAttribute('closedby', 'any');
   }, []);
@@ -86,14 +82,13 @@ export default function CreateTaskModal() {
     if (!supportsClosedBy && e.target === e.currentTarget) e.currentTarget.close();
   };
 
-  // Global triggers: header/sidebar buttons (custom event) and the `C` shortcut.
   useEffect(() => {
     const onOpenEvent = (e: Event) => open((e as CustomEvent<CreateTaskDefaults | undefined>).detail);
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key.toLowerCase() !== 'c' || e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;
       if (isTypingTarget(e.target) || document.querySelector('dialog[open]')) return;
-      e.preventDefault(); // Don't type the "c" into the freshly focused title field.
+      e.preventDefault();
       open();
     };
 
@@ -137,7 +132,6 @@ export default function CreateTaskModal() {
     }
   };
 
-  // Cmd/Ctrl + Enter submits from anywhere in the form (including the description).
   const handleFormKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
     if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
       e.preventDefault();

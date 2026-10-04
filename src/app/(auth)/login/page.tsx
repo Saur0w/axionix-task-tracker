@@ -24,6 +24,8 @@ import { simulateErrorStore, useSimulateError } from '@/context/TaskContext';
 import { getInitials } from '@/utils/format';
 import styles from './style.module.scss';
 
+gsap.registerPlugin(useGSAP);
+
 const ROLE_OPTIONS = [
   'Frontend Developer',
   'Backend Developer',
@@ -112,7 +114,6 @@ export default function LoginPage() {
         description: msg,
       });
 
-      // Subtle shake animation on card for failed attempts
       if (cardRef.current) {
         gsap.fromTo(
           cardRef.current,
@@ -184,7 +185,6 @@ export default function LoginPage() {
       <div className={styles.ambientGrid} />
 
       <div className={styles.loginCard} ref={cardRef}>
-        {/* Brand Header */}
         <div className={styles.brandHeader}>
           <div className={styles.logoWrapper}>
             <AxionixLogo size={24} />
@@ -199,7 +199,6 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Auth Mode Tabs: Sign In vs Create Account */}
         <div className={styles.authModeTabs}>
           <button
             type="button"
@@ -225,7 +224,6 @@ export default function LoginPage() {
           </button>
         </div>
 
-        {/* Notice if Mock Error simulation is enabled in Header */}
         {simulateError && (
           <div className={styles.mockErrorWarning}>
             <AlertTriangle size={16} className={styles.warningIcon} />
@@ -244,7 +242,6 @@ export default function LoginPage() {
           </div>
         )}
 
-        {/* Existing Session Notice */}
         {user && (
           <div className={styles.activeSessionBanner}>
             <p className={styles.sessionText}>
@@ -266,7 +263,6 @@ export default function LoginPage() {
           </div>
         )}
 
-        {/* 1-Click Demo Profiles (Shown in Sign In mode) */}
         {mode === 'signin' && (
           <div className={styles.demoProfiles}>
             <span className={styles.demoLabel}>1-Click Demo Profiles</span>
@@ -293,7 +289,6 @@ export default function LoginPage() {
 
         {mode === 'signin' && <div className={styles.divider}>or with email</div>}
 
-        {/* Error Message Display */}
         {errorMessage && (
           <div className={styles.errorBanner} role="alert">
             <AlertCircle size={15} />
@@ -301,7 +296,6 @@ export default function LoginPage() {
           </div>
         )}
 
-        {/* Dynamic Form: Sign In or Register */}
         <form onSubmit={handleSubmit} className={styles.form}>
           {mode === 'register' && (
             <>
@@ -428,7 +422,6 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Social SSO (Shown in Sign In mode) */}
         {mode === 'signin' && (
           <div className={styles.ssoRow}>
             <button
@@ -462,7 +455,6 @@ export default function LoginPage() {
           </div>
         )}
 
-        {/* Footer info */}
         <p className={styles.footerNote}>
           Axionix Engineering Workspace • <Link href="/dashboard">Direct to Dashboard</Link>
         </p>

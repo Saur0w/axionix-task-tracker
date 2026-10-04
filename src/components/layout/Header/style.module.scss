@@ -18,7 +18,6 @@
   transition: background-color var(--transition-normal), border-color var(--transition-normal);
 }
 
-/* Left Section: Breadcrumb Trail */
 .leftSection {
   display: flex;
   align-items: center;
@@ -73,13 +72,11 @@
   }
 }
 
-/* Right Section */
 .rightSection {
   display: flex;
   align-items: center;
   gap: 6px;
 
-  /* Search Pill */
   .searchPillBtn {
     height: 30px;
     padding: 0 10px;
@@ -166,7 +163,6 @@
     }
   }
 
-  /* Icon Buttons */
   .iconBtn {
     width: 30px;
     height: 30px;
@@ -197,7 +193,6 @@
     }
   }
 
-  /* Mock Error Toggle */
   .errorToggle {
     display: flex;
     align-items: center;
@@ -229,7 +224,6 @@
     }
   }
 
-  /* New Issue Button */
   .newIssueBtn {
     height: 30px;
     padding: 0 11px;
