@@ -55,7 +55,6 @@ function DashboardContent() {
     throw new Error('Simulated Crash: Failed to load dashboard telemetry!');
   }
 
-  // When in "My Issues" view, compute metrics specifically for current user's issues
   const relevantTasks = useMemo(() => {
     if (isMyIssuesView && authUser) {
       return tasks.filter((t) => t.assigneeId === authUser.id);
