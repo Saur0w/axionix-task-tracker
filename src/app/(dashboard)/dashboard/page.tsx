@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, { useState, useMemo, useRef, Suspense } from 'react';
 import Link from 'next/link';
