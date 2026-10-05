@@ -5,24 +5,18 @@ import { Task, Project, User, TaskStatus, TaskPriority } from '@/types';
 import { INITIAL_USERS, INITIAL_PROJECTS, INITIAL_TASKS } from '@/services/mockData';
 import { createPersistentStore } from '@/utils/persistentStore';
 
-/* -------------------------------------------------------------------------- */
-/*  Mock "database": localStorage-backed stores                               */
-/* -------------------------------------------------------------------------- */
-
 const isArray = <T,>(value: unknown): value is T[] => Array.isArray(value);
 
 export const tasksStore = createPersistentStore<Task[]>('axionix_tasks', INITIAL_TASKS, isArray);
 export const projectsStore = createPersistentStore<Project[]>('axionix_projects', INITIAL_PROJECTS, isArray);
 export const usersStore = createPersistentStore<User[]>('axionix_users', INITIAL_USERS, isArray);
 
-/** Assignment Req #3: when true, every mutation fails like a real network error. */
 export const simulateErrorStore = createPersistentStore<boolean>(
   'axionix_simulate_error',
   false,
   (v): v is boolean => typeof v === 'boolean'
 );
 
-/** Thrown by the mock API so the UI can tell expected failures apart from bugs. */
 export class ApiError extends Error {
   constructor(message: string) {
     super(message);
